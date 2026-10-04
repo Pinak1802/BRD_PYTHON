@@ -1,0 +1,117 @@
+flowchart TB
+
+    subgraph CLIENT["Client Layer"]
+        ACTOR_1["Pension Administrator"]
+        ACTOR_2["Finance Personnel"]
+        ACTOR_3["Operations Personnel"]
+        ACTOR_4["Benefit Approver"]
+        ACTOR_5["Member"]
+        ACTOR_6["Compliance / Auditor"]
+        ACTOR_7["System Scheduler"]
+    end
+
+    subgraph APPLICATION["Application Layer"]
+        COMP_1["API Gateway & Security Filter<br/><small>Terminates TLS, validates JWT tokens, enforces rate limiting, and performs initi</small>"]
+        COMP_2["Scheme & Rule Management Module<br/><small>Maintains pension schemes, lifecycle statuses, and dynamic eligibility evaluatio</small>"]
+        COMP_3["Employer Management Module<br/><small>Registers participating corporate employers, tracks primary contacts, and manage</small>"]
+        COMP_4["Member & Enrollment Module<br/><small>Manages member demographics, enforces anti-duplicate registration rules, and pro</small>"]
+        COMP_5["Pension Account Module<br/><small>Maintains pension account records linking members to active schemes with unique </small>"]
+        COMP_6["Contribution & Reconciliation Engine<br/><small>Ingests contribution schedules, records receipts, runs member allocations, and b</small>"]
+        COMP_7["Investment Management Module<br/><small>Records member fund allocations across approved investment products and tracks a</small>"]
+        COMP_8["Benefit Processing Module<br/><small>Validates benefit claims, handles dual-control approval state machines, and reco</small>"]
+        COMP_9["Audit & Compliance Service<br/><small>Captures immutable before/after snapshots of material changes and exposes audit </small>"]
+        COMP_10["Reporting & Analytics Service<br/><small>Compiles operational dashboard states, reconciliation discrepancy summaries, and</small>"]
+    end
+
+    subgraph DATABASE["Data Layer"]
+        DB_1["Scheme"]
+        DB_2["EligibilityRule"]
+        DB_3["Employer"]
+        DB_4["EmployerSchemeAssociation"]
+        DB_5["Member"]
+        DB_6["Enrollment"]
+        DB_7["PensionAccount"]
+        DB_8["ContributionSubmission"]
+        DB_9["ContributionReceipt"]
+        DB_10["ContributionAllocation"]
+        DB_11["ReconciliationRecord"]
+        DB_12["InvestmentRecord"]
+        DB_13["BenefitRequest"]
+        DB_14["BenefitApproval"]
+        DB_15["AuditTrail"]
+    end
+
+    subgraph INFRA["Infrastructure / External Layer"]
+        INFRA_1["Web Client / Admin Portal (Single Page Application hosted via CDN / Static Web Tier)"]
+        INFRA_2["API Gateway / Reverse Proxy (Ingress routing, SSL termination, and rate limiting)"]
+        INFRA_3["Application Server Cluster (Containerized EPAS modular monolith running in active-active configuration)"]
+        INFRA_4["Primary Relational Database (Managed PostgreSQL in Multi-AZ configuration)"]
+        INFRA_5["Database Read Replica (Dedicated to Reporting and Audit query load)"]
+        INFRA_6["Centralized Observability Stack (Metrics aggregator, distributed tracing collector, and log indexer)"]
+    end
+
+    ACTOR_1 --> COMP_1
+    ACTOR_2 --> COMP_1
+    ACTOR_3 --> COMP_1
+    ACTOR_4 --> COMP_1
+    ACTOR_5 --> COMP_1
+    ACTOR_6 --> COMP_1
+    ACTOR_7 --> COMP_1
+    COMP_3 --> COMP_2
+    COMP_4 --> COMP_2
+    COMP_5 --> COMP_4
+    COMP_5 --> COMP_2
+    COMP_6 --> COMP_3
+    COMP_2 --> DB_1
+    COMP_2 --> DB_2
+    COMP_3 --> DB_3
+    COMP_3 --> DB_4
+    COMP_4 --> DB_5
+    COMP_4 --> DB_6
+    COMP_5 --> DB_7
+    COMP_6 --> DB_8
+    COMP_6 --> DB_9
+    COMP_6 --> DB_10
+    COMP_6 --> DB_11
+    COMP_7 --> DB_12
+    COMP_8 --> DB_13
+    COMP_8 --> DB_14
+    COMP_9 --> DB_15
+
+    classDef actor fill:#e8f0fe,stroke:#333
+    classDef component fill:#e8f5e9,stroke:#333
+    classDef database fill:#fff3e0,stroke:#333
+    classDef infra fill:#f3e5f5,stroke:#333
+
+    class ACTOR_1 actor
+    class ACTOR_2 actor
+    class ACTOR_3 actor
+    class ACTOR_4 actor
+    class ACTOR_5 actor
+    class ACTOR_6 actor
+    class ACTOR_7 actor
+    class COMP_1 component
+    class COMP_2 component
+    class COMP_3 component
+    class COMP_4 component
+    class COMP_5 component
+    class COMP_6 component
+    class COMP_7 component
+    class COMP_8 component
+    class COMP_9 component
+    class COMP_10 component
+    class DB_1 database
+    class DB_2 database
+    class DB_3 database
+    class DB_4 database
+    class DB_5 database
+    class DB_6 database
+    class DB_7 database
+    class DB_8 database
+    class DB_9 database
+    class DB_10 database
+    class DB_11 database
+    class DB_12 database
+    class DB_13 database
+    class DB_14 database
+    class DB_15 database

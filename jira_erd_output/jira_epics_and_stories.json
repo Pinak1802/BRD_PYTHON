@@ -1,0 +1,353 @@
+{
+  "project_key": "SCRUM",
+  "epic_count": 8,
+  "story_count": 29,
+  "epics": [
+    {
+      "epic_key": "SCRUM-31",
+      "epic_summary": "Scheme Management",
+      "epic_description": "Configuration and maintenance of pension scheme details, eligibility rules, and change traceability",
+      "stories": [
+        {
+          "key": "SCRUM-32",
+          "issue_type": "Story",
+          "summary": "Scheme Configuration",
+          "description": "As a Pension administrator, I want to create and maintain scheme details, eligibility, rules, status, and effective dates, so that consistent scheme administration is achieved.\n\nAcceptance Criteria:\n1. Given a valid scheme configuration, when saved, then the scheme record is created with status and effective dates visible\n2. Given an existing scheme, when updated, then changes are persisted and retrievable\n3. Given a scheme lookup, when queried by identifier, then the scheme details are returned",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-31",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-33",
+          "issue_type": "Story",
+          "summary": "Scheme Eligibility Rules",
+          "description": "As a Pension administrator, I want to configure scheme eligibility rules, so that enrollment compliance is ensured.\n\nAcceptance Criteria:\n1. Given eligibility rule definitions, when associated with a scheme, then the rules are stored and retrievable\n2. Given a scheme with eligibility rules, when rules are modified, then the changes are recorded",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-31",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-34",
+          "issue_type": "Story",
+          "summary": "Material Change Traceability",
+          "description": "As a Pension administrator or compliance personnel, I want to record traceability for material scheme changes, so that accountability and auditability are maintained.\n\nAcceptance Criteria:\n1. Given a material scheme change, when recorded, then who changed it, when, and what changed are captured\n2. Given a change history query, when executed, then the audit trail is retrievable",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-31",
+          "epic_link": null,
+          "status": "To Do"
+        }
+      ]
+    },
+    {
+      "epic_key": "SCRUM-35",
+      "epic_summary": "Employer Management",
+      "epic_description": "Registration and maintenance of employer records and scheme associations",
+      "stories": [
+        {
+          "key": "SCRUM-36",
+          "issue_type": "Story",
+          "summary": "Employer Registration",
+          "description": "As a Pension administrator, I want to register employers and maintain employer records, so that a single employer record exists.\n\nAcceptance Criteria:\n1. Given employer details, when registered, then an employer record exists with unique identifier\n2. Given an employer lookup, when queried, then the record is retrieved",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-35",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-37",
+          "issue_type": "Story",
+          "summary": "Authorized Contact Management",
+          "description": "As a Pension administrator, I want to maintain authorized employer contacts, so that controlled employer communication is enabled.\n\nAcceptance Criteria:\n1. Given contact details, when added, then contacts are linked to employer\n2. Given an existing contact, when updated, then changes are persisted",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-35",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-38",
+          "issue_type": "Story",
+          "summary": "Employer-Scheme Association",
+          "description": "As a Pension administrator, I want to associate employers with relevant schemes, so that correct contribution routing is achieved.\n\nAcceptance Criteria:\n1. Given an employer and scheme, when associated, then the association is visible and traceable\n2. Given an association query, when executed, then the link is retrievable",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-35",
+          "epic_link": null,
+          "status": "To Do"
+        }
+      ]
+    },
+    {
+      "epic_key": "SCRUM-39",
+      "epic_summary": "Member Management",
+      "epic_description": "Member registration, enrollment validation, record maintenance, and duplicate prevention",
+      "stories": [
+        {
+          "key": "SCRUM-40",
+          "issue_type": "Story",
+          "summary": "Member Registration and Enrollment",
+          "description": "As a Pension administrator or Member, I want to register members and process enrollment, so that member participation is enabled.\n\nAcceptance Criteria:\n1. Given member details, when registered, then member record is created and enrollment recorded\n2. Given a member lookup, when queried, then the record is retrieved",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-39",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-41",
+          "issue_type": "Story",
+          "summary": "Eligibility Validation",
+          "description": "As a Pension administrator, I want enrollment validated against applicable scheme eligibility rules, so that rule compliance is ensured.\n\nAcceptance Criteria:\n1. Given an enrollment attempt, when validated against rules, then ineligible attempts are blocked or flagged\n2. Given valid eligibility, when processed, then enrollment proceeds",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-39",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-42",
+          "issue_type": "Story",
+          "summary": "Member Record Maintenance",
+          "description": "As a Pension administrator, I want to maintain accurate member records, so that record reliability is achieved.\n\nAcceptance Criteria:\n1. Given member data, when updated, then records are updated with change history\n2. Given a member record, when retrieved, then current data is visible",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-39",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-43",
+          "issue_type": "Story",
+          "summary": "Duplicate Invalid Registration Prevention",
+          "description": "As a Pension administrator, I want to prevent or resolve duplicate or invalid registrations, so that data integrity is maintained.\n\nAcceptance Criteria:\n1. Given a registration attempt, when checked for duplicates, then duplicates or invalid records are identified and quarantined\n2. Given a quarantined record, when reviewed, then resolution options are available",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-39",
+          "epic_link": null,
+          "status": "To Do"
+        }
+      ]
+    },
+    {
+      "epic_key": "SCRUM-44",
+      "epic_summary": "Pension Account Administration",
+      "epic_description": "Administration of pension accounts and association traceability",
+      "stories": [
+        {
+          "key": "SCRUM-45",
+          "issue_type": "Story",
+          "summary": "Pension Account Administration",
+          "description": "As a Pension administrator, I want to administer pension-account records associated with members and schemes, so that account integrity is maintained.\n\nAcceptance Criteria:\n1. Given account details, when created, then accounts are linked to member and scheme\n2. Given an account, when maintained, then updates are persisted",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-44",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-46",
+          "issue_type": "Story",
+          "summary": "Account Association Traceability",
+          "description": "As a Pension administrator or Finance personnel, I want to maintain clear traceability between accounts and business records, so that audit trail is preserved.\n\nAcceptance Criteria:\n1. Given account associations, when queried, then associations are visible and traceable\n2. Given a traceability request, when executed, then the links are retrievable",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-44",
+          "epic_link": null,
+          "status": "To Do"
+        }
+      ]
+    },
+    {
+      "epic_key": "SCRUM-47",
+      "epic_summary": "Contributions and Financial Reconciliation",
+      "epic_description": "Recording of contributions, reconciliation, exception handling, and evidence preservation",
+      "stories": [
+        {
+          "key": "SCRUM-48",
+          "issue_type": "Story",
+          "summary": "Contribution Submission Recording",
+          "description": "As Operations or Finance personnel, I want to record contribution submissions, so that submission evidence is captured.\n\nAcceptance Criteria:\n1. Given a contribution submission, when recorded, then it is timestamped and recorded\n2. Given a submission lookup, when queried, then the record is retrieved",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-47",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-49",
+          "issue_type": "Story",
+          "summary": "Contribution Receipt Recording",
+          "description": "As Finance personnel, I want to record contribution receipts, so that receipt evidence is captured.\n\nAcceptance Criteria:\n1. Given a contribution receipt, when recorded, then amounts and dates are captured\n2. Given a receipt lookup, when queried, then the record is retrieved",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-47",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-50",
+          "issue_type": "Story",
+          "summary": "Contribution Allocation Recording",
+          "description": "As Finance personnel, I want to record allocation outcomes, so that allocation transparency is achieved.\n\nAcceptance Criteria:\n1. Given allocation data, when recorded, then allocations are recorded per member employer scheme\n2. Given an allocation query, when executed, then the allocation is visible",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-47",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-51",
+          "issue_type": "Story",
+          "summary": "Contribution Reconciliation",
+          "description": "As Finance personnel, I want to reconcile submitted received and allocated amounts, so that financial control is maintained.\n\nAcceptance Criteria:\n1. Given submitted received and allocated amounts, when reconciled, then discrepancies are identified and flagged\n2. Given a reconciliation result, when reviewed, then differences are visible",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-47",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-52",
+          "issue_type": "Story",
+          "summary": "Exception Identification and Tracking",
+          "description": "As Operations or Finance personnel, I want to identify unmatched amounts discrepancies invalid records and failed transactions and track resolution, so that exception control is achieved.\n\nAcceptance Criteria:\n1. Given unmatched amounts or invalid records, when detected, then exceptions are flagged and not silently completed\n2. Given an exception, when tracked, then resolution status is visible",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-47",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-53",
+          "issue_type": "Story",
+          "summary": "Financial Action Evidence Preservation",
+          "description": "As Finance or Compliance personnel, I want to preserve evidence of material financial actions, so that auditability is maintained.\n\nAcceptance Criteria:\n1. Given a material financial action, when recorded, then evidence is retained and retrievable\n2. Given an evidence request, when executed, then the evidence is retrievable\n3. Given a sensitive financial action, when accessed, then role-based access control is enforced",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-47",
+          "epic_link": null,
+          "status": "To Do"
+        }
+      ]
+    },
+    {
+      "epic_key": "SCRUM-54",
+      "epic_summary": "Investment Records",
+      "epic_description": "Maintenance of investment records and change traceability",
+      "stories": [
+        {
+          "key": "SCRUM-55",
+          "issue_type": "Story",
+          "summary": "Investment Record Maintenance",
+          "description": "As Pension administrators or Finance personnel, I want to maintain approved investment and allocation records, so that investment governance is achieved.\n\nAcceptance Criteria:\n1. Given investment data, when recorded, then records can be created and updated with change history\n2. Given an investment record, when retrieved, then current data is visible",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-54",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-56",
+          "issue_type": "Story",
+          "summary": "Investment Change Traceability",
+          "description": "As Pension administrators, I want to record relevant changes and maintain traceability, so that auditability is maintained.\n\nAcceptance Criteria:\n1. Given an investment change, when recorded, then changes are traceable to source and approver\n2. Given a change history query, when executed, then the audit trail is retrievable",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-54",
+          "epic_link": null,
+          "status": "To Do"
+        }
+      ]
+    },
+    {
+      "epic_key": "SCRUM-57",
+      "epic_summary": "Benefits Administration",
+      "epic_description": "Benefit request validation, approval workflow, and payment tracking",
+      "stories": [
+        {
+          "key": "SCRUM-58",
+          "issue_type": "Story",
+          "summary": "Benefit Request Validation",
+          "description": "As Operations or Pension administrators, I want to record and validate benefit requests against confirmed rules, so that rule compliance is ensured.\n\nAcceptance Criteria:\n1. Given a benefit request, when validated, then invalid requests are rejected or flagged\n2. Given a valid request, when processed, then it proceeds to approval",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-57",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-59",
+          "issue_type": "Story",
+          "summary": "Benefit Approval Workflow",
+          "description": "As Approvers or Pension administrators, I want to support controlled review approval and decision recording, so that governance is maintained.\n\nAcceptance Criteria:\n1. Given a benefit request, when approved or rejected, then decisions are recorded with approver identity\n2. Given an approval workflow, when executed, then the decision is persisted\n3. Given an approval action, then separation of submission review and approval is validated",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-57",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-60",
+          "issue_type": "Story",
+          "summary": "Benefit Processing Status and Payment Outcomes",
+          "description": "As Operations or Members, I want to track processing status and payment outcomes where applicable, so that visibility is achieved.\n\nAcceptance Criteria:\n1. Given a benefit request, when processed, then status and outcomes are visible\n2. Given a status query, when executed, then current status is returned",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-57",
+          "epic_link": null,
+          "status": "To Do"
+        }
+      ]
+    },
+    {
+      "epic_key": "SCRUM-61",
+      "epic_summary": "Reporting and Audit",
+      "epic_description": "Operational reporting, visibility, audit trails, and review support",
+      "stories": [
+        {
+          "key": "SCRUM-62",
+          "issue_type": "Story",
+          "summary": "Operational and Financial Reporting",
+          "description": "As Management or Finance personnel, I want to generate operational and financial reports, so that decision support is provided.\n\nAcceptance Criteria:\n1. Given validated data, when reports are generated, then reports are produced from validated data\n2. Given a report request, when executed, then the report is retrievable",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-61",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-63",
+          "issue_type": "Story",
+          "summary": "Processing Status Visibility",
+          "description": "As Operations or Management personnel, I want to have visibility into processing status, so that operational control is achieved.\n\nAcceptance Criteria:\n1. Given processing data, when queried, then status is visible in real time or near real time\n2. Given a status dashboard, when accessed, then current processing status is displayed",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-61",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-64",
+          "issue_type": "Story",
+          "summary": "Reconciliation Discrepancy Visibility",
+          "description": "As Finance personnel, I want to have visibility into reconciliation discrepancies, so that financial control is maintained.\n\nAcceptance Criteria:\n1. Given reconciliation data, when queried, then discrepancies are reportable\n2. Given a discrepancy report, when generated, then discrepancies are visible",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-61",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-65",
+          "issue_type": "Story",
+          "summary": "Exception Visibility",
+          "description": "As Operations or Compliance personnel, I want to have visibility into unresolved exceptions, so that risk management is achieved.\n\nAcceptance Criteria:\n1. Given exception data, when queried, then exceptions are reportable\n2. Given an exception report, when generated, then unresolved exceptions are visible",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-61",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-66",
+          "issue_type": "Story",
+          "summary": "Material Action Audit Trail",
+          "description": "As Compliance or Audit personnel, I want to have traceable records of material actions and changes, so that accountability is maintained.\n\nAcceptance Criteria:\n1. Given material actions, when recorded, then audit trail is complete and retrievable\n2. Given an audit query, when executed, then the trail is retrievable\n3. Given material changes, when recorded, then role-based access controls are applied to sensitive operations",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-61",
+          "epic_link": null,
+          "status": "To Do"
+        },
+        {
+          "key": "SCRUM-67",
+          "issue_type": "Story",
+          "summary": "Audit Review Support",
+          "description": "As Compliance or Audit personnel, I want to support accountability and audit review, so that compliance is achieved.\n\nAcceptance Criteria:\n1. Given audit procedures, when executed, then review can be performed without excessive effort\n2. Given an audit request, when processed, then the review is supported",
+          "acceptance_criteria": "",
+          "parent_key": "SCRUM-61",
+          "epic_link": null,
+          "status": "To Do"
+        }
+      ]
+    }
+  ]
+}

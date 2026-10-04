@@ -1,0 +1,844 @@
+{
+  "entities": [
+    {
+      "name": "Scheme",
+      "description": "Pension scheme configuration and rules",
+      "attributes": [
+        {
+          "name": "scheme_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "scheme_name",
+          "type": "VARCHAR(255)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "scheme_number",
+          "type": "VARCHAR(50)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "effective_date",
+          "type": "DATE",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "end_date",
+          "type": "DATE",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    },
+    {
+      "name": "EligibilityRule",
+      "description": "Scheme eligibility validation rules",
+      "attributes": [
+        {
+          "name": "rule_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "scheme_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "rule_type",
+          "type": "VARCHAR(50)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "rule_definition",
+          "type": "TEXT",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "effective_date",
+          "type": "DATE",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    },
+    {
+      "name": "Employer",
+      "description": "Registered employer record",
+      "attributes": [
+        {
+          "name": "employer_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "employer_number",
+          "type": "VARCHAR(50)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "legal_name",
+          "type": "VARCHAR(255)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "trading_name",
+          "type": "VARCHAR(255)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "contact_name",
+          "type": "VARCHAR(100)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "contact_email",
+          "type": "VARCHAR(100)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "contact_phone",
+          "type": "VARCHAR(30)",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    },
+    {
+      "name": "EmployerSchemeAssociation",
+      "description": "Employer to scheme contribution link",
+      "attributes": [
+        {
+          "name": "association_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "employer_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "scheme_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "effective_date",
+          "type": "DATE",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    },
+    {
+      "name": "Member",
+      "description": "Scheme participant",
+      "attributes": [
+        {
+          "name": "member_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "national_insurance_number",
+          "type": "VARCHAR(20)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "first_name",
+          "type": "VARCHAR(100)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "last_name",
+          "type": "VARCHAR(100)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "date_of_birth",
+          "type": "DATE",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "quarantine_reason",
+          "type": "TEXT",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    },
+    {
+      "name": "Enrollment",
+      "description": "Member enrollment into scheme",
+      "attributes": [
+        {
+          "name": "enrollment_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "member_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "scheme_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "enrollment_date",
+          "type": "DATE",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "eligibility_result",
+          "type": "VARCHAR(30)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "validated_at",
+          "type": "TIMESTAMP",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    },
+    {
+      "name": "PensionAccount",
+      "description": "Member pension account",
+      "attributes": [
+        {
+          "name": "account_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "member_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "scheme_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "account_number",
+          "type": "VARCHAR(50)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "opened_date",
+          "type": "DATE",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    },
+    {
+      "name": "ContributionSubmission",
+      "description": "Employer contribution submission",
+      "attributes": [
+        {
+          "name": "submission_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "employer_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "scheme_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "submission_date",
+          "type": "DATE",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "amount",
+          "type": "DECIMAL(12,2)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "reference",
+          "type": "VARCHAR(100)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "received_at",
+          "type": "TIMESTAMP",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    },
+    {
+      "name": "ContributionReceipt",
+      "description": "Recorded contribution receipt evidence",
+      "attributes": [
+        {
+          "name": "receipt_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "submission_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "receipt_date",
+          "type": "DATE",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "amount",
+          "type": "DECIMAL(12,2)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "currency",
+          "type": "VARCHAR(10)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "payment_method",
+          "type": "VARCHAR(50)",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    },
+    {
+      "name": "ContributionAllocation",
+      "description": "Contribution allocation to member",
+      "attributes": [
+        {
+          "name": "allocation_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "member_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "employer_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "scheme_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "submission_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "amount",
+          "type": "DECIMAL(12,2)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "allocation_date",
+          "type": "DATE",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    },
+    {
+      "name": "ReconciliationRecord",
+      "description": "Contribution reconciliation and discrepancies",
+      "attributes": [
+        {
+          "name": "reconciliation_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "scheme_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "period_start",
+          "type": "DATE",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "period_end",
+          "type": "DATE",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "submitted_amount",
+          "type": "DECIMAL(12,2)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "received_amount",
+          "type": "DECIMAL(12,2)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "allocated_amount",
+          "type": "DECIMAL(12,2)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(30)",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    },
+    {
+      "name": "InvestmentRecord",
+      "description": "Member investment holding",
+      "attributes": [
+        {
+          "name": "investment_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "member_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "scheme_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "investment_product",
+          "type": "VARCHAR(100)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "amount",
+          "type": "DECIMAL(12,2)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "effective_date",
+          "type": "DATE",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    },
+    {
+      "name": "BenefitRequest",
+      "description": "Member benefit request",
+      "attributes": [
+        {
+          "name": "benefit_request_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "member_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "benefit_type",
+          "type": "VARCHAR(50)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "requested_amount",
+          "type": "DECIMAL(12,2)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(30)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "submitted_date",
+          "type": "DATE",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "approved_at",
+          "type": "TIMESTAMP",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    },
+    {
+      "name": "BenefitApproval",
+      "description": "Benefit decision and approver",
+      "attributes": [
+        {
+          "name": "approval_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "benefit_request_id",
+          "type": "INTEGER",
+          "primary_key": false,
+          "foreign_key": true
+        },
+        {
+          "name": "approver_id",
+          "type": "VARCHAR(50)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "decision",
+          "type": "VARCHAR(20)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "decision_date",
+          "type": "TIMESTAMP",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "notes",
+          "type": "TEXT",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    },
+    {
+      "name": "AuditTrail",
+      "description": "Audit log of material actions and changes",
+      "attributes": [
+        {
+          "name": "audit_id",
+          "type": "INTEGER",
+          "primary_key": true,
+          "foreign_key": false
+        },
+        {
+          "name": "entity_type",
+          "type": "VARCHAR(50)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "entity_id",
+          "type": "VARCHAR(50)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "action_type",
+          "type": "VARCHAR(50)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "actor_id",
+          "type": "VARCHAR(50)",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "old_value",
+          "type": "TEXT",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "new_value",
+          "type": "TEXT",
+          "primary_key": false,
+          "foreign_key": false
+        },
+        {
+          "name": "changed_at",
+          "type": "TIMESTAMP",
+          "primary_key": false,
+          "foreign_key": false
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "from": "Scheme",
+      "to": "EligibilityRule",
+      "label": "has",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "Employer",
+      "to": "EmployerSchemeAssociation",
+      "label": "has",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "Scheme",
+      "to": "EmployerSchemeAssociation",
+      "label": "has",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "Member",
+      "to": "Enrollment",
+      "label": "has",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "Scheme",
+      "to": "Enrollment",
+      "label": "has",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "Member",
+      "to": "PensionAccount",
+      "label": "has",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "Employer",
+      "to": "ContributionSubmission",
+      "label": "submits",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "Scheme",
+      "to": "ContributionSubmission",
+      "label": "receives",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "ContributionSubmission",
+      "to": "ContributionReceipt",
+      "label": "has",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "Member",
+      "to": "ContributionAllocation",
+      "label": "receives",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "Employer",
+      "to": "ContributionAllocation",
+      "label": "makes",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "Scheme",
+      "to": "ContributionAllocation",
+      "label": "receives",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "ContributionSubmission",
+      "to": "ContributionAllocation",
+      "label": "allocates",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "Scheme",
+      "to": "ReconciliationRecord",
+      "label": "has",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "Member",
+      "to": "InvestmentRecord",
+      "label": "has",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "Scheme",
+      "to": "InvestmentRecord",
+      "label": "has",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "Member",
+      "to": "BenefitRequest",
+      "label": "submits",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "BenefitRequest",
+      "to": "BenefitApproval",
+      "label": "has",
+      "cardinality": "one-to-many"
+    }
+  ],
+  "assumptions": [
+    "Employer contact is stored as one primary contact per employer; multiple contacts require table extension.",
+    "Eligibility validation result is captured at enrollment against active scheme rules.",
+    "Duplicate or invalid registrations are quarantined by setting member status with a reason.",
+    "Exception and discrepancy tracking is consolidated into reconciliation status.",
+    "Material change and financial action audit evidence is captured via audit trail with entity type and actor.",
+    "Benefit approval separation is enforced by requiring a distinct approver from submitter in BenefitApproval.",
+    "Allocation amount is recorded per member, employer and scheme as required.",
+    "Investment change traceability is recorded via audit trail referencing the investment entity."
+  ]
+}

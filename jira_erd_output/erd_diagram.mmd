@@ -1,0 +1,181 @@
+%%{init: {
+  "theme": "default",
+  "themeVariables": {
+    "background": "#ffffff",
+    "primaryColor": "#f4f7fb",
+    "primaryBorderColor": "#526d82",
+    "primaryTextColor": "#172b4d",
+    "lineColor": "#526d82",
+    "tertiaryColor": "#ffffff"
+  }
+}}%%
+erDiagram
+    direction TB
+    Scheme ||--o{ EligibilityRule : "has"
+    Employer ||--o{ EmployerSchemeAssociation : "has"
+    Scheme ||--o{ EmployerSchemeAssociation : "has"
+    Member ||--o{ Enrollment : "has"
+    Scheme ||--o{ Enrollment : "has"
+    Member ||--o{ PensionAccount : "has"
+    Employer ||--o{ ContributionSubmission : "submits"
+    Scheme ||--o{ ContributionSubmission : "receives"
+    ContributionSubmission ||--o{ ContributionReceipt : "has"
+    Member ||--o{ ContributionAllocation : "receives"
+    Employer ||--o{ ContributionAllocation : "makes"
+    Scheme ||--o{ ContributionAllocation : "receives"
+    ContributionSubmission ||--o{ ContributionAllocation : "allocates"
+    Scheme ||--o{ ReconciliationRecord : "has"
+    Member ||--o{ InvestmentRecord : "has"
+    Scheme ||--o{ InvestmentRecord : "has"
+    Member ||--o{ BenefitRequest : "submits"
+    BenefitRequest ||--o{ BenefitApproval : "has"
+
+    Scheme {
+        int scheme_id PK
+        string scheme_name
+        string scheme_number
+        string status
+        date effective_date
+        date end_date
+        datetime created_at
+        datetime updated_at
+    }
+
+    EligibilityRule {
+        int rule_id PK
+        int scheme_id FK
+        string rule_type
+        string rule_definition
+        date effective_date
+        boolean is_active
+    }
+
+    Employer {
+        int employer_id PK
+        string employer_number
+        string legal_name
+        string trading_name
+        string status
+        string contact_name
+        string contact_email
+        string contact_phone
+    }
+
+    EmployerSchemeAssociation {
+        int association_id PK
+        int employer_id FK
+        int scheme_id FK
+        date effective_date
+        boolean is_active
+    }
+
+    Member {
+        int member_id PK
+        string national_insurance_number
+        string first_name
+        string last_name
+        date date_of_birth
+        string status
+        string quarantine_reason
+        datetime created_at
+    }
+
+    Enrollment {
+        int enrollment_id PK
+        int member_id FK
+        int scheme_id FK
+        date enrollment_date
+        string status
+        string eligibility_result
+        datetime validated_at
+    }
+
+    PensionAccount {
+        int account_id PK
+        int member_id FK
+        int scheme_id FK
+        string account_number
+        string status
+        date opened_date
+    }
+
+    ContributionSubmission {
+        int submission_id PK
+        int employer_id FK
+        int scheme_id FK
+        date submission_date
+        decimal amount
+        string reference
+        datetime received_at
+    }
+
+    ContributionReceipt {
+        int receipt_id PK
+        int submission_id FK
+        date receipt_date
+        decimal amount
+        string currency
+        string payment_method
+    }
+
+    ContributionAllocation {
+        int allocation_id PK
+        int member_id FK
+        int employer_id FK
+        int scheme_id FK
+        int submission_id FK
+        decimal amount
+        date allocation_date
+    }
+
+    ReconciliationRecord {
+        int reconciliation_id PK
+        int scheme_id FK
+        date period_start
+        date period_end
+        decimal submitted_amount
+        decimal received_amount
+        decimal allocated_amount
+        string status
+    }
+
+    InvestmentRecord {
+        int investment_id PK
+        int member_id FK
+        int scheme_id FK
+        string investment_product
+        decimal amount
+        string status
+        date effective_date
+        datetime updated_at
+    }
+
+    BenefitRequest {
+        int benefit_request_id PK
+        int member_id FK
+        string benefit_type
+        decimal requested_amount
+        string status
+        date submitted_date
+        datetime approved_at
+    }
+
+    BenefitApproval {
+        int approval_id PK
+        int benefit_request_id FK
+        string approver_id
+        string decision
+        datetime decision_date
+        string notes
+    }
+
+    AuditTrail {
+        int audit_id PK
+        string entity_type
+        string entity_id
+        string action_type
+        string actor_id
+        string old_value
+        string new_value
+        datetime changed_at
+    }

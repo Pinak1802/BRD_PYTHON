@@ -1,0 +1,221 @@
+{
+  "erd": {
+    "entities": [
+      {
+        "name": "User",
+        "description": "System actor: pension administrator, finance, approver, operations, compliance, or member",
+        "attributes": [
+          {"name": "user_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "user_name", "type": "VARCHAR(255)", "primary_key": false, "foreign_key": false},
+          {"name": "email", "type": "VARCHAR(255)", "primary_key": false, "foreign_key": false},
+          {"name": "role", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "is_active", "type": "BOOLEAN", "primary_key": false, "foreign_key": false},
+          {"name": "created_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false}
+        ]
+      },
+      {
+        "name": "Scheme",
+        "description": "Pension scheme configuration with status and effective dates",
+        "attributes": [
+          {"name": "scheme_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "scheme_name", "type": "VARCHAR(255)", "primary_key": false, "foreign_key": false},
+          {"name": "description", "type": "TEXT", "primary_key": false, "foreign_key": false},
+          {"name": "status", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "effective_date", "type": "DATE", "primary_key": false, "foreign_key": false},
+          {"name": "expiry_date", "type": "DATE", "primary_key": false, "foreign_key": false},
+          {"name": "created_by", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "updated_by", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "created_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false},
+          {"name": "updated_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false}
+        ]
+      },
+      {
+        "name": "SchemeEligibilityRule",
+        "description": "Eligibility rules associated with a scheme for enrollment compliance",
+        "attributes": [
+          {"name": "rule_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "scheme_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "rule_name", "type": "VARCHAR(255)", "primary_key": false, "foreign_key": false},
+          {"name": "rule_definition", "type": "TEXT", "primary_key": false, "foreign_key": false},
+          {"name": "effective_date", "type": "DATE", "primary_key": false, "foreign_key": false},
+          {"name": "is_active", "type": "BOOLEAN", "primary_key": false, "foreign_key": false}
+        ]
+      },
+      {
+        "name": "Employer",
+        "description": "Registered employer with unique identifier",
+        "attributes": [
+          {"name": "employer_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "employer_name", "type": "VARCHAR(255)", "primary_key": false, "foreign_key": false},
+          {"name": "registration_number", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "status", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "created_by", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "updated_by", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "created_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false},
+          {"name": "updated_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false}
+        ]
+      },
+      {
+        "name": "EmployerContact",
+        "description": "Authorized contacts linked to an employer",
+        "attributes": [
+          {"name": "contact_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "employer_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "contact_name", "type": "VARCHAR(255)", "primary_key": false, "foreign_key": false},
+          {"name": "email", "type": "VARCHAR(255)", "primary_key": false, "foreign_key": false},
+          {"name": "phone", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "role", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "is_primary", "type": "BOOLEAN", "primary_key": false, "foreign_key": false},
+          {"name": "created_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false},
+          {"name": "updated_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false}
+        ]
+      },
+      {
+        "name": "EmployerSchemeAssociation",
+        "description": "Association between employers and schemes for contribution routing",
+        "attributes": [
+          {"name": "association_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "employer_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "scheme_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "effective_date", "type": "DATE", "primary_key": false, "foreign_key": false},
+          {"name": "is_active", "type": "BOOLEAN", "primary_key": false, "foreign_key": false}
+        ]
+      },
+      {
+        "name": "Member",
+        "description": "Registered member participating in the scheme",
+        "attributes": [
+          {"name": "member_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "employer_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "first_name", "type": "VARCHAR(255)", "primary_key": false, "foreign_key": false},
+          {"name": "last_name", "type": "VARCHAR(255)", "primary_key": false, "foreign_key": false},
+          {"name": "date_of_birth", "type": "DATE", "primary_key": false, "foreign_key": false},
+          {"name": "national_id", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "email", "type": "VARCHAR(255)", "primary_key": false, "foreign_key": false},
+          {"name": "phone", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "status", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "created_by", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "updated_by", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "created_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false},
+          {"name": "updated_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false}
+        ]
+      },
+      {
+        "name": "Enrollment",
+        "description": "Member enrollment into a scheme, validated against eligibility rules",
+        "attributes": [
+          {"name": "enrollment_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "member_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "scheme_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "enrollment_date", "type": "DATE", "primary_key": false, "foreign_key": false},
+          {"name": "eligibility_check_result", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "eligibility_check_details", "type": "TEXT", "primary_key": false, "foreign_key": false},
+          {"name": "status", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "validated_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false},
+          {"name": "validated_by", "type": "INTEGER", "primary_key": false, "foreign_key": true}
+        ]
+      },
+      {
+        "name": "PensionAccount",
+        "description": "Pension account linked to a member and scheme",
+        "attributes": [
+          {"name": "account_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "member_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "scheme_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "account_number", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "status", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "created_by", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "updated_by", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "created_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false},
+          {"name": "updated_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false}
+        ]
+      },
+      {
+        "name": "AccountAssociation",
+        "description": "Traceable links between accounts and other business records",
+        "attributes": [
+          {"name": "association_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "account_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "related_entity_type", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "related_entity_id", "type": "INTEGER", "primary_key": false, "foreign_key": false},
+          {"name": "association_type", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "created_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false}
+        ]
+      },
+      {
+        "name": "ContributionSubmission",
+        "description": "Contribution submission recorded with timestamp and evidence",
+        "attributes": [
+          {"name": "submission_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "employer_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "scheme_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "submission_date", "type": "DATE", "primary_key": false, "foreign_key": false},
+          {"name": "total_amount", "type": "DECIMAL(12,2)", "primary_key": false, "foreign_key": false},
+          {"name": "currency", "type": "VARCHAR(10)", "primary_key": false, "foreign_key": false},
+          {"name": "status", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "submitted_by", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "submitted_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false}
+        ]
+      },
+      {
+        "name": "ContributionReceipt",
+        "description": "Contribution receipt with amounts and dates",
+        "attributes": [
+          {"name": "receipt_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "submission_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "receipt_date", "type": "DATE", "primary_key": false, "foreign_key": false},
+          {"name": "amount", "type": "DECIMAL(12,2)", "primary_key": false, "foreign_key": false},
+          {"name": "currency", "type": "VARCHAR(10)", "primary_key": false, "foreign_key": false},
+          {"name": "payment_method", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "status", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "received_by", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "received_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false}
+        ]
+      },
+      {
+        "name": "ContributionAllocation",
+        "description": "Allocation of contributions per member, employer, and scheme",
+        "attributes": [
+          {"name": "allocation_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "receipt_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "member_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "employer_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "scheme_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "allocated_amount", "type": "DECIMAL(12,2)", "primary_key": false, "foreign_key": false},
+          {"name": "allocation_date", "type": "DATE", "primary_key": false, "foreign_key": false},
+          {"name": "status", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false}
+        ]
+      },
+      {
+        "name": "Reconciliation",
+        "description": "Reconciliation of submitted, received, and allocated amounts with discrepancy flags",
+        "attributes": [
+          {"name": "reconciliation_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "submission_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "receipt_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "allocation_id", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "submitted_amount", "type": "DECIMAL(12,2)", "primary_key": false, "foreign_key": false},
+          {"name": "received_amount", "type": "DECIMAL(12,2)", "primary_key": false, "foreign_key": false},
+          {"name": "allocated_amount", "type": "DECIMAL(12,2)", "primary_key": false, "foreign_key": false},
+          {"name": "discrepancy_amount", "type": "DECIMAL(12,2)", "primary_key": false, "foreign_key": false},
+          {"name": "discrepancy_flag", "type": "BOOLEAN", "primary_key": false, "foreign_key": false},
+          {"name": "status", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "reconciled_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false},
+          {"name": "reconciled_by", "type": "INTEGER", "primary_key": false, "foreign_key": true}
+        ]
+      },
+      {
+        "name": "Exception",
+        "description": "Unmatched amounts, invalid records, and failed transactions with resolution tracking",
+        "attributes": [
+          {"name": "exception_id", "type": "INTEGER", "primary_key": true, "foreign_key": false},
+          {"name": "exception_type", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "related_entity_type", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "related_entity_id", "type": "INTEGER", "primary_key": false, "foreign_key": false},
+          {"name": "description", "type": "TEXT", "primary_key": false, "foreign_key": false},
+          {"name": "severity", "type": "VARCHAR(50)", "primary_key": false, "foreign_key": false},
+          {"name": "status", "type": "VARCHAR(100)", "primary_key": false, "foreign_key": false},
+          {"name": "created_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false},
+          {"name": "resolved_at", "type": "TIMESTAMP", "primary_key": false, "foreign_key": false},
+          {"name": "resolved_by", "type": "INTEGER", "primary_key": false, "foreign_key": true},
+          {"name": "resolution_notes", "type": "TEXT", "primary_key": false, "foreign_key": false}

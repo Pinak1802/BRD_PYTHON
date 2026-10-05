@@ -1,1603 +1,743 @@
 {
   "systemOverview": {
-    "systemName": "Enterprise Pension Administration System (EPAS)",
-    "purpose": "Provides centralized, auditable administration of pension schemes, employer contributions, member enrollment, accounts, investments, and benefit disbursements.",
-    "architectureStyle": "Modular Monolith with Domain-Driven Design (DDD)",
-    "architecturalRationale": "A modular monolith ensures strict transactional consistency for financial reconciliation and contribution ledgering while avoiding the operational latency and distributed transaction overhead of microservices. It allows clear modular boundaries that can be split into separate services if organizational scaling demands it.",
-    "description": "EPAS orchestrates pension lifecycle management from scheme rule configuration and employer-member associations to multi-tier financial reconciliations, investment tracking, and segregated benefit approval workflows. The architecture mandates immutable audit logging and strict role-based separation of duties across all transactional touchpoints."
+    "systemName": "Pension Administration System",
+    "purpose": "Manage pension administration tasks, including scheme configuration, member enrollment, and benefit processing.",
+    "architectureStyle": "Layered Architecture",
+    "architecturalRationale": "Modular monolith architecture is too complex for this system, and microservices would introduce unnecessary complexity. A layered architecture provides a clear separation of concerns and is well-suited for this system.",
+    "description": "The system will consist of multiple layers, each responsible for a specific aspect of pension administration."
   },
   "actors": [
     {
       "name": "Pension Administrator",
-      "responsibility": "Configures pension schemes, maintains eligibility rules, associates employers, manages member records, and administers pension accounts.",
+      "responsibility": "Manage scheme configurations, member enrollments, and benefit processing.",
       "interactions": [
-        "Create and update schemes and eligibility rules",
-        "Register and manage employers and scheme associations",
-        "Oversee member registrations, account creations, and duplicate resolutions"
-      ]
-    },
-    {
-      "name": "Finance Personnel",
-      "responsibility": "Oversees financial integrity, records contribution receipts, triggers allocations, and performs balance reconciliation.",
-      "interactions": [
-        "Record and verify contribution receipts against bank settlements",
-        "Execute and review member contribution allocations",
-        "Run reconciliation jobs, identify discrepancies, and preserve financial evidence"
-      ]
-    },
-    {
-      "name": "Operations Personnel",
-      "responsibility": "Handles day-to-day transaction processing, ingestion of employer contribution schedules, and operational exception tracking.",
-      "interactions": [
-        "Upload and validate contribution submissions",
-        "Monitor transaction pipelines and resolve operational exceptions",
-        "Initiate preliminary benefit request reviews"
-      ]
-    },
-    {
-      "name": "Benefit Approver",
-      "responsibility": "Provides independent governance and dual-authorization on member benefit claims, upholding separation of duties.",
-      "interactions": [
-        "Review validated benefit claims",
-        "Approve or reject benefit payout requests with decision rationales"
-      ]
-    },
-    {
-      "name": "Member",
-      "responsibility": "Enrolls into permitted schemes, reviews pension accounts, and requests benefit payments.",
-      "interactions": [
-        "Submit enrollment data",
-        "View account balances and investment holdings",
-        "Initiate benefit requests"
-      ]
-    },
-    {
-      "name": "Compliance / Auditor",
-      "responsibility": "Inspects system-wide audit trails, reviews material changes, and ensures regulatory compliance.",
-      "interactions": [
-        "Query historical audit records and change logs",
-        "Generate discrepancy, exception, and regulatory compliance reports"
-      ]
-    },
-    {
-      "name": "System Scheduler",
-      "responsibility": "Executes background batch processing for automated reconciliation and scheduled reporting.",
-      "interactions": [
-        "Trigger periodic reconciliation calculations",
-        "Aggregate system processing status snapshots"
+        "Scheme Configuration",
+        "Member Enrollment",
+        "Benefit Processing"
       ]
     }
   ],
   "architecture": {
     "components": [
       {
-        "name": "API Gateway & Security Filter",
-        "type": "Edge / Routing",
-        "responsibility": "Terminates TLS, validates JWT tokens, enforces rate limiting, and performs initial payload structure validation.",
-        "whyItExists": "Protects internal modules from unauthorized access and centralizes edge cross-cutting concerns.",
+        "name": "Web Client",
+        "type": "Presentation Layer",
+        "responsibility": "Provide a user interface for the system.",
+        "whyItExists": "To interact with the system and provide a user experience.",
         "dependencies": [
-          "Identity & Access Management"
+          "API Gateway"
         ],
         "ownedData": [],
         "operations": [
-          "routeRequest",
-          "validateToken",
-          "enforceRateLimit"
+          "Login",
+          "Scheme Configuration",
+          "Member Enrollment",
+          "Benefit Processing"
         ]
       },
       {
-        "name": "Scheme & Rule Management Module",
-        "type": "Domain Module",
-        "responsibility": "Maintains pension schemes, lifecycle statuses, and dynamic eligibility evaluation rules.",
-        "whyItExists": "Decouples scheme rules and legal parameters from transactional member processing.",
+        "name": "API Gateway",
+        "type": "API Layer",
+        "responsibility": "Handle incoming API requests and route them to the appropriate service.",
+        "whyItExists": "To provide a secure and scalable entry point for the system.",
         "dependencies": [
-          "Audit Service",
-          "Database"
+          "Authentication Module"
         ],
+        "ownedData": [],
+        "operations": [
+          "Scheme Configuration",
+          "Member Enrollment",
+          "Benefit Processing"
+        ]
+      },
+      {
+        "name": "Authentication Module",
+        "type": "Authentication Layer",
+        "responsibility": "Authenticate users and authorize access to the system.",
+        "whyItExists": "To ensure the security of the system.",
+        "dependencies": [],
+        "ownedData": [],
+        "operations": [
+          "Login",
+          "Logout"
+        ]
+      },
+      {
+        "name": "Business Application Service",
+        "type": "Application Service Layer",
+        "responsibility": "Provide business logic and services for the system.",
+        "whyItExists": "To implement the business rules and logic of the system.",
+        "dependencies": [
+          "Repository/Data Access Layer"
+        ],
+        "ownedData": [],
+        "operations": [
+          "Scheme Configuration",
+          "Member Enrollment",
+          "Benefit Processing"
+        ]
+      },
+      {
+        "name": "Repository/Data Access Layer",
+        "type": "Data Access Layer",
+        "responsibility": "Provide data access and storage for the system.",
+        "whyItExists": "To store and retrieve data for the system.",
+        "dependencies": [],
         "ownedData": [
           "Scheme",
-          "EligibilityRule"
-        ],
-        "operations": [
-          "createScheme",
-          "updateScheme",
-          "addEligibilityRule",
-          "evaluateEligibility"
-        ]
-      },
-      {
-        "name": "Employer Management Module",
-        "type": "Domain Module",
-        "responsibility": "Registers participating corporate employers, tracks primary contacts, and manages scheme participation links.",
-        "whyItExists": "Serves as the master record for contributing corporate entities.",
-        "dependencies": [
-          "Scheme & Rule Management Module",
-          "Audit Service",
-          "Database"
-        ],
-        "ownedData": [
-          "Employer",
-          "EmployerSchemeAssociation"
-        ],
-        "operations": [
-          "registerEmployer",
-          "updateContactDetails",
-          "associateScheme",
-          "getEmployerSchemes"
-        ]
-      },
-      {
-        "name": "Member & Enrollment Module",
-        "type": "Domain Module",
-        "responsibility": "Manages member demographics, enforces anti-duplicate registration rules, and processes scheme enrollments.",
-        "whyItExists": "Guarantees demographic data cleanliness and gates scheme enrollment against configured rules.",
-        "dependencies": [
-          "Scheme & Rule Management Module",
-          "Audit Service",
-          "Database"
-        ],
-        "ownedData": [
           "Member",
-          "Enrollment"
+          "Benefit"
         ],
         "operations": [
-          "registerMember",
-          "detectDuplicates",
-          "quarantineMember",
-          "processEnrollment"
+          "Scheme Configuration",
+          "Member Enrollment",
+          "Benefit Processing"
         ]
       },
       {
-        "name": "Pension Account Module",
-        "type": "Domain Module",
-        "responsibility": "Maintains pension account records linking members to active schemes with unique ledger accounts.",
-        "whyItExists": "Acts as the anchor entity for balances, allocations, and investments.",
-        "dependencies": [
-          "Member & Enrollment Module",
-          "Scheme & Rule Management Module",
-          "Audit Service",
-          "Database"
-        ],
+        "name": "Database",
+        "type": "Data Storage Layer",
+        "responsibility": "Store and retrieve data for the system.",
+        "whyItExists": "To provide a persistent storage layer for the system.",
+        "dependencies": [],
         "ownedData": [
-          "PensionAccount"
+          "Scheme",
+          "Member",
+          "Benefit"
         ],
         "operations": [
-          "createAccount",
-          "updateAccountStatus",
-          "getAccountByMember"
+          "Scheme Configuration",
+          "Member Enrollment",
+          "Benefit Processing"
         ]
       },
       {
-        "name": "Contribution & Reconciliation Engine",
-        "type": "Domain Module / Financial Ledger",
-        "responsibility": "Ingests contribution schedules, records receipts, runs member allocations, and balances three-way reconciliations.",
-        "whyItExists": "Ensures full fiduciary control and prevents unallocated or unmatched cash flows.",
-        "dependencies": [
-          "PensionAccount Module",
-          "Employer Management Module",
-          "Audit Service",
-          "Database"
-        ],
-        "ownedData": [
-          "ContributionSubmission",
-          "ContributionReceipt",
-          "ContributionAllocation",
-          "ReconciliationRecord"
-        ],
-        "operations": [
-          "recordSubmission",
-          "recordReceipt",
-          "allocateContributions",
-          "executeReconciliation",
-          "flagException"
-        ]
-      },
-      {
-        "name": "Investment Management Module",
-        "type": "Domain Module",
-        "responsibility": "Records member fund allocations across approved investment products and tracks asset value updates.",
-        "whyItExists": "Tracks portfolio allocations and provides auditability for investment balance modifications.",
-        "dependencies": [
-          "PensionAccount Module",
-          "Audit Service",
-          "Database"
-        ],
-        "ownedData": [
-          "InvestmentRecord"
-        ],
-        "operations": [
-          "recordInvestment",
-          "updateInvestmentBalance",
-          "getInvestmentHistory"
-        ]
-      },
-      {
-        "name": "Benefit Processing Module",
-        "type": "Domain Module / Workflow",
-        "responsibility": "Validates benefit claims, handles dual-control approval state machines, and records disbursement outcomes.",
-        "whyItExists": "Enforces segregation of duties and fraud prevention during pension drawdowns.",
-        "dependencies": [
-          "PensionAccount Module",
-          "Audit Service",
-          "Database"
-        ],
-        "ownedData": [
-          "BenefitRequest",
-          "BenefitApproval"
-        ],
-        "operations": [
-          "submitBenefitRequest",
-          "validateBenefitRules",
-          "recordApprovalDecision",
-          "trackPaymentStatus"
-        ]
-      },
-      {
-        "name": "Audit & Compliance Service",
-        "type": "Cross-Cutting Infrastructure Service",
-        "responsibility": "Captures immutable before/after snapshots of material changes and exposes audit query interfaces.",
-        "whyItExists": "Fulfills statutory pension compliance for non-repudiation and traceability.",
-        "dependencies": [
-          "Database"
-        ],
-        "ownedData": [
-          "AuditTrail"
-        ],
-        "operations": [
-          "logMaterialAction",
-          "queryAuditTrail",
-          "generateAuditReport"
-        ]
-      },
-      {
-        "name": "Reporting & Analytics Service",
-        "type": "Read-Model / Query Module",
-        "responsibility": "Compiles operational dashboard states, reconciliation discrepancy summaries, and financial reports.",
-        "whyItExists": "Offloads reporting load from core transactional write paths using optimized read projections.",
+        "name": "Cache",
+        "type": "Caching Layer",
+        "responsibility": "Provide caching for frequently accessed data.",
+        "whyItExists": "To improve performance by reducing the number of database queries.",
         "dependencies": [
           "Database"
         ],
         "ownedData": [],
         "operations": [
-          "getOperationalStatus",
-          "getDiscrepancyReport",
-          "getUnresolvedExceptions"
+          "Scheme Configuration",
+          "Member Enrollment",
+          "Benefit Processing"
+        ]
+      },
+      {
+        "name": "Message Broker",
+        "type": "Message Broker Layer",
+        "responsibility": "Provide message queuing and notification services.",
+        "whyItExists": "To enable asynchronous processing and notification services.",
+        "dependencies": [
+          "API Gateway"
+        ],
+        "ownedData": [],
+        "operations": [
+          "Scheme Configuration",
+          "Member Enrollment",
+          "Benefit Processing"
+        ]
+      },
+      {
+        "name": "Notification Service",
+        "type": "Notification Layer",
+        "responsibility": "Provide notification services for the system.",
+        "whyItExists": "To notify users of important events and updates.",
+        "dependencies": [
+          "Message Broker"
+        ],
+        "ownedData": [],
+        "operations": [
+          "Scheme Configuration",
+          "Member Enrollment",
+          "Benefit Processing"
+        ]
+      },
+      {
+        "name": "External Integrations",
+        "type": "External Integration Layer",
+        "responsibility": "Provide external integration services for the system.",
+        "whyItExists": "To integrate with external systems and services.",
+        "dependencies": [],
+        "ownedData": [],
+        "operations": [
+          "Scheme Configuration",
+          "Member Enrollment",
+          "Benefit Processing"
+        ]
+      },
+      {
+        "name": "Logging/Monitoring",
+        "type": "Logging/Monitoring Layer",
+        "responsibility": "Provide logging and monitoring services for the system.",
+        "whyItExists": "To monitor and log system activity for debugging and auditing purposes.",
+        "dependencies": [
+          "API Gateway"
+        ],
+        "ownedData": [],
+        "operations": [
+          "Scheme Configuration",
+          "Member Enrollment",
+          "Benefit Processing"
         ]
       }
     ],
     "communicationPatterns": [
-      "Synchronous REST/JSON over HTTPS via API Gateway for interactive client transactions and queries",
-      "Synchronous in-process transactional method calls across modules within boundary transaction contexts",
-      "Asynchronous domain event dispatch via internal transaction-bound Application Event Bus for audit logging and cache invalidation"
+      {
+        "name": "Request-Response",
+        "description": "A request is sent from the client to the API gateway, which then routes the request to the appropriate service."
+      },
+      {
+        "name": "Message Queue",
+        "description": "Messages are sent from the client to the message broker, which then processes the messages and notifies the user."
+      }
     ]
   },
   "functionalModules": [
     {
-      "name": "Scheme Configuration & Rule Administration",
-      "purpose": "Manages pension scheme entities, parameters, validity windows, and associated enrollment eligibility rules.",
+      "name": "Scheme Configuration",
+      "purpose": "Manage scheme configurations.",
       "jiraEpics": [
-        "Scheme Administration"
-      ],
-      "jiraStories": [
         "SCRUM-32",
-        "SCRUM-33",
-        "SCRUM-34"
-      ],
-      "responsibilities": [
-        "Persist and update pension schemes with status and validity dates",
-        "Configure and store dynamic eligibility rules per scheme",
-        "Capture material audit logs on rule or scheme modifications"
-      ],
-      "erdEntities": [
-        "Scheme",
-        "EligibilityRule",
-        "AuditTrail"
-      ]
-    },
-    {
-      "name": "Employer Management & Scheme Association",
-      "purpose": "Governs participating employers, maintains their authorized communication channels, and associates them to schemes.",
-      "jiraEpics": [
-        "Employer Management"
+        "SCRUM-33"
       ],
       "jiraStories": [
-        "SCRUM-36",
-        "SCRUM-37",
-        "SCRUM-38"
+        "SCRUM-32-1",
+        "SCRUM-32-2",
+        "SCRUM-33-1",
+        "SCRUM-33-2"
       ],
       "responsibilities": [
-        "Register unique employer records and lookup profiles",
-        "Maintain authorized corporate contact details",
-        "Bind employers to eligible pension schemes with effective dating"
+        "Scheme Configuration",
+        "Eligibility Rule Management"
       ],
       "erdEntities": [
-        "Employer",
-        "EmployerSchemeAssociation",
-        "AuditTrail"
-      ]
-    },
-    {
-      "name": "Member Registration & Enrollment Management",
-      "purpose": "Registers prospective members, detects duplicates, quarantines anomalous inputs, and evaluates enrollment eligibility.",
-      "jiraEpics": [
-        "Member Management"
-      ],
-      "jiraStories": [
-        "SCRUM-40",
-        "SCRUM-41",
-        "SCRUM-42",
-        "SCRUM-43"
-      ],
-      "responsibilities": [
-        "Create member profiles and enforce National Insurance Number uniqueness",
-        "Quarantine duplicate or suspect member registrations with reason codes",
-        "Evaluate member demographics against scheme rules before confirming enrollment"
-      ],
-      "erdEntities": [
-        "Member",
-        "Enrollment",
-        "EligibilityRule",
-        "AuditTrail"
-      ]
-    },
-    {
-      "name": "Pension Account Administration",
-      "purpose": "Maintains ledger account containers for enrolled members linked to schemes.",
-      "jiraEpics": [
-        "Account Management"
-      ],
-      "jiraStories": [
-        "SCRUM-45",
-        "SCRUM-46"
-      ],
-      "responsibilities": [
-        "Provision unique pension account identifiers upon successful enrollment",
-        "Maintain account status lifecycle and traceability to members and schemes"
-      ],
-      "erdEntities": [
-        "PensionAccount",
-        "Member",
-        "Scheme",
-        "AuditTrail"
-      ]
-    },
-    {
-      "name": "Contribution & Financial Reconciliation",
-      "purpose": "Handles contribution submission schedules, receipts, allocations, exceptions, and three-way reconciliation balances.",
-      "jiraEpics": [
-        "Financial Operations"
-      ],
-      "jiraStories": [
-        "SCRUM-48",
-        "SCRUM-49",
-        "SCRUM-50",
-        "SCRUM-51",
-        "SCRUM-52",
-        "SCRUM-53"
-      ],
-      "responsibilities": [
-        "Record employer contribution submissions with financial references",
-        "Record bank receipts matching submissions",
-        "Allocate amounts across individual member pension accounts",
-        "Calculate reconciliations across submitted, received, and allocated funds",
-        "Trap discrepancies and unallocated amounts into tracked exception states",
-        "Preserve tamper-proof financial action evidence"
-      ],
-      "erdEntities": [
-        "ContributionSubmission",
-        "ContributionReceipt",
-        "ContributionAllocation",
-        "ReconciliationRecord",
-        "AuditTrail"
-      ]
-    },
-    {
-      "name": "Investment Governance",
-      "purpose": "Maintains member investment product assignments, balances, and history of investment adjustments.",
-      "jiraEpics": [
-        "Investment Administration"
-      ],
-      "jiraStories": [
-        "SCRUM-55",
-        "SCRUM-56"
-      ],
-      "responsibilities": [
-        "Create and maintain investment allocations per member and scheme",
-        "Record audited change history for investment movements"
-      ],
-      "erdEntities": [
-        "InvestmentRecord",
-        "AuditTrail"
-      ]
-    },
-    {
-      "name": "Benefit Adjudication & Approval",
-      "purpose": "Validates member benefit applications, enforces separation of duties via approver workflows, and logs disbursement states.",
-      "jiraEpics": [
-        "Benefits Administration"
-      ],
-      "jiraStories": [
-        "SCRUM-58",
-        "SCRUM-59",
-        "SCRUM-60"
-      ],
-      "responsibilities": [
-        "Validate benefit claims against scheme drawdown criteria",
-        "Enforce dual-control approvals preventing submitter self-approval",
-        "Record formal approval or rejection decisions and payment statuses"
-      ],
-      "erdEntities": [
-        "BenefitRequest",
-        "BenefitApproval",
-        "AuditTrail"
-      ]
-    },
-    {
-      "name": "Operational & Compliance Reporting",
-      "purpose": "Provides operational dashboards, audit logs, and exception and reconciliation discrepancy reports.",
-      "jiraEpics": [
-        "Audit & Reporting"
-      ],
-      "jiraStories": [
-        "SCRUM-62",
-        "SCRUM-63",
-        "SCRUM-64",
-        "SCRUM-65",
-        "SCRUM-66",
-        "SCRUM-67"
-      ],
-      "responsibilities": [
-        "Generate periodic financial and operational status reports",
-        "Provide near-real-time processing visibility dashboards",
-        "Expose reconciliation variances and unresolved exception queries",
-        "Provide immutable, queryable audit review logs for regulatory audits"
-      ],
-      "erdEntities": [
-        "AuditTrail",
-        "ReconciliationRecord",
-        "Enrollment",
-        "BenefitRequest"
-      ]
-    }
-  ],
-  "apis": [
-    {
-      "method": "POST",
-      "endpoint": "/api/v1/schemes",
-      "purpose": "Create a new pension scheme definition with operational dates and status.",
-      "module": "Scheme Configuration & Rule Administration",
-      "request": "{ \"scheme_name\": \"Alpha Master Trust\", \"scheme_number\": \"SCH-001\", \"status\": \"ACTIVE\", \"effective_date\": \"2024-01-01\", \"end_date\": null }",
-      "response": "{ \"scheme_id\": \"uuid\", \"scheme_number\": \"SCH-001\", \"status\": \"ACTIVE\", \"created_at\": \"2024-01-01T00:00:00Z\" }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: PENSION_ADMIN",
-      "validation": [
-        "scheme_name is required",
-        "scheme_number must be unique",
-        "effective_date must be valid ISO8601"
-      ],
-      "errors": [
-        "400 Bad Request",
-        "401 Unauthorized",
-        "409 Conflict - Scheme Number Exists"
-      ]
-    },
-    {
-      "method": "POST",
-      "endpoint": "/api/v1/schemes/{scheme_id}/rules",
-      "purpose": "Attach eligibility rules to an existing scheme.",
-      "module": "Scheme Configuration & Rule Administration",
-      "request": "{ \"rule_type\": \"MIN_AGE\", \"rule_definition\": \"{\\\"min_age\\\": 21, \\\"max_age\\\": 65}\", \"effective_date\": \"2024-01-01\", \"is_active\": true }",
-      "response": "{ \"rule_id\": \"uuid\", \"scheme_id\": \"uuid\", \"rule_type\": \"MIN_AGE\", \"is_active\": true }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: PENSION_ADMIN",
-      "validation": [
-        "rule_type must be supported enum",
-        "rule_definition must be valid JSON",
-        "effective_date required"
-      ],
-      "errors": [
-        "400 Bad Request",
-        "404 Scheme Not Found",
-        "401 Unauthorized"
-      ]
-    },
-    {
-      "method": "POST",
-      "endpoint": "/api/v1/employers",
-      "purpose": "Register a new employer entity.",
-      "module": "Employer Management & Scheme Association",
-      "request": "{ \"employer_number\": \"EMP-1001\", \"legal_name\": \"Acme Corp Ltd\", \"trading_name\": \"Acme\", \"status\": \"ACTIVE\", \"contact_name\": \"Jane Doe\", \"contact_email\": \"jane@acme.com\", \"contact_phone\": \"+441234567890\" }",
-      "response": "{ \"employer_id\": \"uuid\", \"employer_number\": \"EMP-1001\", \"status\": \"ACTIVE\" }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: PENSION_ADMIN",
-      "validation": [
-        "employer_number must be unique",
-        "legal_name is required",
-        "contact_email must be valid email format"
-      ],
-      "errors": [
-        "400 Bad Request",
-        "409 Conflict - Employer Number Exists"
-      ]
-    },
-    {
-      "method": "POST",
-      "endpoint": "/api/v1/employers/{employer_id}/schemes",
-      "purpose": "Associate an employer with an active pension scheme.",
-      "module": "Employer Management & Scheme Association",
-      "request": "{ \"scheme_id\": \"uuid\", \"effective_date\": \"2024-01-01\", \"is_active\": true }",
-      "response": "{ \"association_id\": \"uuid\", \"employer_id\": \"uuid\", \"scheme_id\": \"uuid\", \"is_active\": true }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: PENSION_ADMIN",
-      "validation": [
-        "scheme_id must exist and be ACTIVE",
-        "effective_date is required"
-      ],
-      "errors": [
-        "404 Employer/Scheme Not Found",
-        "409 Active Association Already Exists"
-      ]
-    },
-    {
-      "method": "POST",
-      "endpoint": "/api/v1/members",
-      "purpose": "Register a prospective member and perform duplicate checking.",
-      "module": "Member Registration & Enrollment Management",
-      "request": "{ \"national_insurance_number\": \"QQ123456A\", \"first_name\": \"John\", \"last_name\": \"Smith\", \"date_of_birth\": \"1985-06-15\" }",
-      "response": "{ \"member_id\": \"uuid\", \"status\": \"ACTIVE\", \"quarantine_reason\": null, \"created_at\": \"2024-01-01T10:00:00Z\" }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: PENSION_ADMIN, MEMBER",
-      "validation": [
-        "national_insurance_number format must be valid",
-        "date_of_birth must be past date",
-        "first_name and last_name mandatory"
-      ],
-      "errors": [
-        "400 Bad Request",
-        "409 Duplicate Identity Quarantined"
-      ]
-    },
-    {
-      "method": "POST",
-      "endpoint": "/api/v1/enrollments",
-      "purpose": "Enroll a member into a scheme subject to dynamic eligibility validation.",
-      "module": "Member Registration & Enrollment Management",
-      "request": "{ \"member_id\": \"uuid\", \"scheme_id\": \"uuid\", \"enrollment_date\": \"2024-01-01\" }",
-      "response": "{ \"enrollment_id\": \"uuid\", \"status\": \"CONFIRMED\", \"eligibility_result\": \"PASSED\", \"validated_at\": \"2024-01-01T10:05:00Z\" }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: PENSION_ADMIN, MEMBER",
-      "validation": [
-        "member_id exists and not quarantined",
-        "scheme_id exists and active"
-      ],
-      "errors": [
-        "400 Ineligible for Scheme",
-        "404 Member/Scheme Not Found",
-        "409 Already Enrolled"
-      ]
-    },
-    {
-      "method": "POST",
-      "endpoint": "/api/v1/accounts",
-      "purpose": "Open a ledger pension account for an enrolled member.",
-      "module": "Pension Account Administration",
-      "request": "{ \"member_id\": \"uuid\", \"scheme_id\": \"uuid\", \"account_number\": \"ACC-998877\", \"opened_date\": \"2024-01-01\" }",
-      "response": "{ \"account_id\": \"uuid\", \"account_number\": \"ACC-998877\", \"status\": \"OPEN\" }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: PENSION_ADMIN",
-      "validation": [
-        "member must have confirmed enrollment in scheme",
-        "account_number must be unique"
-      ],
-      "errors": [
-        "400 Enrollment Not Confirmed",
-        "409 Account Number Exists"
-      ]
-    },
-    {
-      "method": "POST",
-      "endpoint": "/api/v1/contributions/submissions",
-      "purpose": "Record an employer contribution schedule submission.",
-      "module": "Contribution & Financial Reconciliation",
-      "request": "{ \"employer_id\": \"uuid\", \"scheme_id\": \"uuid\", \"submission_date\": \"2024-02-01\", \"amount\": 50000.00, \"reference\": \"SUB-202402-ACME\" }",
-      "response": "{ \"submission_id\": \"uuid\", \"amount\": 50000.00, \"received_at\": \"2024-02-01T12:00:00Z\" }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: OPERATIONS, FINANCE",
-      "validation": [
-        "amount > 0",
-        "employer associated with scheme",
-        "reference mandatory"
-      ],
-      "errors": [
-        "400 Invalid Amount",
-        "404 Employer/Scheme Association Invalid"
-      ]
-    },
-    {
-      "method": "POST",
-      "endpoint": "/api/v1/contributions/receipts",
-      "purpose": "Record cash receipt matched to a contribution submission.",
-      "module": "Contribution & Financial Reconciliation",
-      "request": "{ \"submission_id\": \"uuid\", \"receipt_date\": \"2024-02-02\", \"amount\": 50000.00, \"currency\": \"GBP\", \"payment_method\": \"BACS\" }",
-      "response": "{ \"receipt_id\": \"uuid\", \"submission_id\": \"uuid\", \"amount\": 50000.00 }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: FINANCE",
-      "validation": [
-        "submission_id must exist",
-        "amount > 0",
-        "currency ISO code valid"
-      ],
-      "errors": [
-        "400 Validation Error",
-        "404 Submission Not Found"
-      ]
-    },
-    {
-      "method": "POST",
-      "endpoint": "/api/v1/contributions/allocations",
-      "purpose": "Allocate contribution amounts from a submission to specific member accounts.",
-      "module": "Contribution & Financial Reconciliation",
-      "request": "{ \"submission_id\": \"uuid\", \"allocations\": [ { \"member_id\": \"uuid\", \"employer_id\": \"uuid\", \"scheme_id\": \"uuid\", \"amount\": 2500.00, \"allocation_date\": \"2024-02-03\" } ] }",
-      "response": "{ \"processed_allocations\": 1, \"total_allocated\": 2500.00 }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: FINANCE",
-      "validation": [
-        "total allocations <= receipt amount",
-        "members must have open accounts in scheme"
-      ],
-      "errors": [
-        "400 Allocation Exceeds Received Amount",
-        "404 Member Not Enrolled"
-      ]
-    },
-    {
-      "method": "POST",
-      "endpoint": "/api/v1/reconciliations",
-      "purpose": "Execute scheme reconciliation balancing submissions, receipts, and allocations for a period.",
-      "module": "Contribution & Financial Reconciliation",
-      "request": "{ \"scheme_id\": \"uuid\", \"period_start\": \"2024-02-01\", \"period_end\": \"2024-02-28\" }",
-      "response": "{ \"reconciliation_id\": \"uuid\", \"submitted_amount\": 50000.00, \"received_amount\": 50000.00, \"allocated_amount\": 50000.00, \"status\": \"BALANCED\" }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: FINANCE",
-      "validation": [
-        "period_start <= period_end",
-        "scheme_id must exist"
-      ],
-      "errors": [
-        "400 Invalid Date Range",
-        "409 Discrepancies Detected"
-      ]
-    },
-    {
-      "method": "POST",
-      "endpoint": "/api/v1/investments",
-      "purpose": "Record or rebalance investment product allocations for a member account.",
-      "module": "Investment Governance",
-      "request": "{ \"member_id\": \"uuid\", \"scheme_id\": \"uuid\", \"investment_product\": \"EQUITY_INDEX_GLOBAL\", \"amount\": 10000.00, \"status\": \"ACTIVE\", \"effective_date\": \"2024-02-01\" }",
-      "response": "{ \"investment_id\": \"uuid\", \"status\": \"ACTIVE\", \"updated_at\": \"2024-02-01T15:00:00Z\" }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: PENSION_ADMIN, FINANCE",
-      "validation": [
-        "member must have active account in scheme",
-        "amount >= 0",
-        "investment_product valid"
-      ],
-      "errors": [
-        "400 Bad Request",
-        "404 Account Not Found"
-      ]
-    },
-    {
-      "method": "POST",
-      "endpoint": "/api/v1/benefits/requests",
-      "purpose": "Submit a benefit claim for validation and subsequent approval.",
-      "module": "Benefit Adjudication & Approval",
-      "request": "{ \"member_id\": \"uuid\", \"benefit_type\": \"RETIREMENT_LUMP_SUM\", \"requested_amount\": 15000.00, \"submitted_date\": \"2024-03-01\" }",
-      "response": "{ \"benefit_request_id\": \"uuid\", \"status\": \"SUBMITTED\", \"submitted_date\": \"2024-03-01\" }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: OPERATIONS, MEMBER",
-      "validation": [
-        "member exists",
-        "requested_amount > 0",
-        "benefit_type in allowable values"
-      ],
-      "errors": [
-        "400 Insufficient Account Balance",
-        "400 Eligibility Violation"
-      ]
-    },
-    {
-      "method": "POST",
-      "endpoint": "/api/v1/benefits/requests/{request_id}/approvals",
-      "purpose": "Record approval or rejection decision enforcing segregation of duties.",
-      "module": "Benefit Adjudication & Approval",
-      "request": "{ \"decision\": \"APPROVED\", \"notes\": \"Criteria met and verified against ID proof.\" }",
-      "response": "{ \"approval_id\": \"uuid\", \"benefit_request_id\": \"uuid\", \"decision\": \"APPROVED\", \"decision_date\": \"2024-03-02\" }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: BENEFIT_APPROVER",
-      "validation": [
-        "approver_id must differ from benefit submitter",
-        "decision must be APPROVED or REJECTED"
-      ],
-      "errors": [
-        "403 Forbidden - Segregation of Duties Violation",
-        "404 Benefit Request Not Found",
-        "409 Request Already Decided"
-      ]
-    },
-    {
-      "method": "GET",
-      "endpoint": "/api/v1/reports/discrepancies",
-      "purpose": "Retrieve financial reconciliation discrepancies and unresolved exceptions.",
-      "module": "Operational & Compliance Reporting",
-      "request": "Query params: scheme_id, status",
-      "response": "{ \"discrepancies\": [ { \"reconciliation_id\": \"uuid\", \"submitted_amount\": 50000.00, \"allocated_amount\": 48000.00, \"variance\": 2000.00, \"status\": \"DISCREPANCY_FLAGGED\" } ] }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: FINANCE, COMPLIANCE",
-      "validation": [
-        "valid query filter parameters"
-      ],
-      "errors": [
-        "400 Bad Request",
-        "401 Unauthorized"
-      ]
-    },
-    {
-      "method": "GET",
-      "endpoint": "/api/v1/audit/trail",
-      "purpose": "Query immutable historical audit records for entities.",
-      "module": "Operational & Compliance Reporting",
-      "request": "Query params: entity_type, entity_id, from_date, to_date",
-      "response": "{ \"records\": [ { \"audit_id\": \"uuid\", \"entity_type\": \"Scheme\", \"entity_id\": \"uuid\", \"action_type\": \"UPDATE\", \"actor_id\": \"user-1\", \"old_value\": \"...\", \"new_value\": \"...\", \"changed_at\": \"2024-01-02T10:00:00Z\" } ] }",
-      "authentication": "Bearer JWT",
-      "authorization": "Role: COMPLIANCE",
-      "validation": [
-        "entity_type must be valid entity name"
-      ],
-      "errors": [
-        "400 Bad Request",
-        "403 Forbidden"
-      ]
-    }
-  ],
-  "businessFlows": [
-    {
-      "name": "Member Registration and Scheme Enrollment",
-      "actor": "Pension Administrator",
-      "steps": [
-        "Administrator submits member demographics (NIN, name, DOB) via UI/API.",
-        "Member & Enrollment Module verifies National Insurance Number against existing Member records.",
-        "If duplicate or inconsistent record found, Member is saved with status 'QUARANTINED' and quarantine_reason, aborting enrollment.",
-        "If clear, Member is created with status 'ACTIVE'.",
-        "Enrollment request submitted for target Scheme.",
-        "Module fetches active EligibilityRules for Scheme and validates Member attributes (e.g., minimum age).",
-        "Upon successful validation, creates Enrollment record with status 'CONFIRMED' and eligibility_result 'PASSED'.",
-        "Pension Account Module creates a new linked PensionAccount in status 'OPEN' and emits an audit event."
-      ],
-      "components": [
-        "API Gateway",
-        "Member & Enrollment Module",
-        "Scheme & Rule Management Module",
-        "Pension Account Module",
-        "Audit Service"
-      ],
-      "validations": [
-        "NIN uniqueness and format",
-        "Member age against scheme EligibilityRule definition",
-        "Active scheme status"
-      ],
-      "databaseOperations": [
-        "INSERT INTO Member",
-        "INSERT INTO Enrollment",
-        "INSERT INTO PensionAccount",
-        "INSERT INTO AuditTrail"
-      ],
-      "result": "Member is registered, verified eligible, enrolled in the scheme, and allocated an active pension account."
-    },
-    {
-      "name": "Contribution Ingestion, Allocation, and Reconciliation",
-      "actor": "Finance Personnel",
-      "steps": [
-        "Employer contribution schedule received and recorded as ContributionSubmission with total amount and reference.",
-        "Bank deposit verified and recorded as ContributionReceipt linked to the submission.",
-        "Finance executes allocation batch distributing receipt amount across member PensionAccounts as ContributionAllocation records.",
-        "System validates that sum of ContributionAllocations matches ContributionReceipt amount.",
-        "Reconciliation engine aggregates submissions, receipts, and allocations for the scheme period.",
-        "If all amounts match exactly, a ReconciliationRecord is persisted with status 'BALANCED'.",
-        "If amounts mismatch, ReconciliationRecord is marked 'DISCREPANCY_FLAGGED', and an operational exception alert is emitted.",
-        "Material financial action snapshot is written to AuditTrail."
-      ],
-      "components": [
-        "API Gateway",
-        "Contribution & Reconciliation Engine",
-        "Pension Account Module",
-        "Audit Service"
-      ],
-      "validations": [
-        "Employer-to-Scheme valid association",
-        "Receipt amount equals submission amount",
-        "Allocation total equals receipt amount"
-      ],
-      "databaseOperations": [
-        "INSERT INTO ContributionSubmission",
-        "INSERT INTO ContributionReceipt",
-        "INSERT INTO ContributionAllocation (batch)",
-        "INSERT INTO ReconciliationRecord",
-        "INSERT INTO AuditTrail"
-      ],
-      "result": "Contribution money is received, allocated to member accounts, and reconciled with discrepancies surfaced immediately."
-    },
-    {
-      "name": "Benefit Request Validation and Dual-Control Approval",
-      "actor": "Operations Personnel & Benefit Approver",
-      "steps": [
-        "Operations or Member submits a BenefitRequest specifying benefit_type and requested_amount.",
-        "Benefit Processing Module validates available balance on member PensionAccount and verifies scheme retirement rules.",
-        "If validation passes, BenefitRequest is persisted with status 'PENDING_APPROVAL'.",
-        "Independent Benefit Approver reviews the claim via dashboard.",
-        "System asserts Approver actor_id is strictly different from the submitter actor_id (enforcing separation of duties).",
-        "Approver records 'APPROVED' decision with notes, generating a BenefitApproval record.",
-        "BenefitRequest status transitions to 'APPROVED' with approved_at timestamp.",
-        "AuditTrail records the state change, approver identity, and decision rationale."
-      ],
-      "components": [
-        "API Gateway",
-        "Benefit Processing Module",
-        "Pension Account Module",
-        "Audit Service"
-      ],
-      "validations": [
-        "Sufficient member pension balance",
-        "Rule-based benefit claim eligibility",
-        "Segregation of duties (Submitter != Approver)"
-      ],
-      "databaseOperations": [
-        "INSERT INTO BenefitRequest",
-        "INSERT INTO BenefitApproval",
-        "UPDATE BenefitRequest SET status = 'APPROVED'",
-        "INSERT INTO AuditTrail"
-      ],
-      "result": "Benefit request is verified, approved under dual authorization, and marked ready for disbursement."
-    }
-  ],
-  "dataFlows": [
-    {
-      "name": "Member Registration & Account Creation Data Flow",
-      "steps": [
-        "Client sends registration payload to API Gateway.",
-        "API Gateway validates JWT and forwards to Member & Enrollment Module.",
-        "Member Module queries Member table for duplicate NIN checks.",
-        "Member record persisted to database.",
-        "Module requests eligibility evaluation from Scheme Module.",
-        "Enrollment record persisted with validation outcome.",
-        "Pension Account Module creates PensionAccount row.",
-        "Synchronous transaction commits across Member, Enrollment, and PensionAccount tables.",
-        "Asynchronous audit payload dispatched to Audit Service."
-      ],
-      "dataEntities": [
-        "Member",
-        "EligibilityRule",
-        "Enrollment",
-        "PensionAccount",
-        "AuditTrail"
-      ],
-      "consistency": "Strong Consistency within ACID transaction boundary across Member, Enrollment, and Account."
-    },
-    {
-      "name": "Financial Contribution and Ledger Allocation Flow",
-      "steps": [
-        "Operations uploads submission metadata to Contribution Engine.",
-        "Finance posts verified bank settlement receipt.",
-        "Batch allocation distributes amounts to member accounts within a transactional unit of work.",
-        "Sum check performed comparing sum(allocations) against receipt amount.",
-        "Reconciliation calculation executed comparing ledger sums.",
-        "ReconciliationRecord committed.",
-        "Material financial action evidence committed to AuditTrail."
-      ],
-      "dataEntities": [
-        "ContributionSubmission",
-        "ContributionReceipt",
-        "ContributionAllocation",
-        "ReconciliationRecord",
-        "AuditTrail"
-      ],
-      "consistency": "Strong consistency enforced by database transaction locks to guarantee zero allocation leaks."
-    }
-  ],
-  "databaseDesign": {
-    "entities": [
-      {
-        "name": "Scheme",
-        "purpose": "Stores core master record for pension schemes including validity periods and administrative status.",
-        "keyAttributes": [
-          "scheme_id (PK, UUID)",
-          "scheme_name",
-          "scheme_number (Unique)",
-          "status",
-          "effective_date",
-          "end_date",
-          "created_at",
-          "updated_at"
-        ],
-        "owningModule": "Scheme Configuration & Rule Administration"
-      },
-      {
-        "name": "EligibilityRule",
-        "purpose": "Maintains parameter definitions used to evaluate member enrollment qualifications for a scheme.",
-        "keyAttributes": [
-          "rule_id (PK, UUID)",
-          "scheme_id (FK)",
-          "rule_type",
-          "rule_definition (JSONB)",
-          "effective_date",
-          "is_active"
-        ],
-        "owningModule": "Scheme Configuration & Rule Administration"
-      },
-      {
-        "name": "Employer",
-        "purpose": "Stores corporate employer profiles and primary administrative contacts.",
-        "keyAttributes": [
-          "employer_id (PK, UUID)",
-          "employer_number (Unique)",
-          "legal_name",
-          "trading_name",
-          "status",
-          "contact_name",
-          "contact_email",
-          "contact_phone"
-        ],
-        "owningModule": "Employer Management & Scheme Association"
-      },
-      {
-        "name": "EmployerSchemeAssociation",
-        "purpose": "Associates employers to schemes to authorize contribution routing.",
-        "keyAttributes": [
-          "association_id (PK, UUID)",
-          "employer_id (FK)",
-          "scheme_id (FK)",
-          "effective_date",
-          "is_active"
-        ],
-        "owningModule": "Employer Management & Scheme Association"
-      },
-      {
-        "name": "Member",
-        "purpose": "Maintains member demographic details and tracks registration duplicate quarantine states.",
-        "keyAttributes": [
-          "member_id (PK, UUID)",
-          "national_insurance_number (Unique)",
-          "first_name",
-          "last_name",
-          "date_of_birth",
-          "status",
-          "quarantine_reason",
-          "created_at"
-        ],
-        "owningModule": "Member Registration & Enrollment Management"
-      },
-      {
-        "name": "Enrollment",
-        "purpose": "Captures formal member enrollment records into schemes with rule evaluation outcomes.",
-        "keyAttributes": [
-          "enrollment_id (PK, UUID)",
-          "member_id (FK)",
-          "scheme_id (FK)",
-          "enrollment_date",
-          "status",
-          "eligibility_result",
-          "validated_at"
-        ],
-        "owningModule": "Member Registration & Enrollment Management"
-      },
-      {
-        "name": "PensionAccount",
-        "purpose": "Ledger account container linking a member to a scheme for asset and balance tracking.",
-        "keyAttributes": [
-          "account_id (PK, UUID)",
-          "member_id (FK)",
-          "scheme_id (FK)",
-          "account_number (Unique)",
-          "status",
-          "opened_date"
-        ],
-        "owningModule": "Pension Account Administration"
-      },
-      {
-        "name": "ContributionSubmission",
-        "purpose": "Records contribution schedule submissions made by employers for a scheme.",
-        "keyAttributes": [
-          "submission_id (PK, UUID)",
-          "employer_id (FK)",
-          "scheme_id (FK)",
-          "submission_date",
-          "amount",
-          "reference",
-          "received_at"
-        ],
-        "owningModule": "Contribution & Financial Reconciliation"
-      },
-      {
-        "name": "ContributionReceipt",
-        "purpose": "Documents verified bank cash receipts linked to specific contribution submissions.",
-        "keyAttributes": [
-          "receipt_id (PK, UUID)",
-          "submission_id (FK)",
-          "receipt_date",
-          "amount",
-          "currency",
-          "payment_method"
-        ],
-        "owningModule": "Contribution & Financial Reconciliation"
-      },
-      {
-        "name": "ContributionAllocation",
-        "purpose": "Itemizes allocated contribution credits distributed to specific member pension accounts.",
-        "keyAttributes": [
-          "allocation_id (PK, UUID)",
-          "member_id (FK)",
-          "employer_id (FK)",
-          "scheme_id (FK)",
-          "submission_id (FK)",
-          "amount",
-          "allocation_date"
-        ],
-        "owningModule": "Contribution & Financial Reconciliation"
-      },
-      {
-        "name": "ReconciliationRecord",
-        "purpose": "Holds periodic balance calculation states comparing submitted, received, and allocated funds.",
-        "keyAttributes": [
-          "reconciliation_id (PK, UUID)",
-          "scheme_id (FK)",
-          "period_start",
-          "period_end",
-          "submitted_amount",
-          "received_amount",
-          "allocated_amount",
-          "status"
-        ],
-        "owningModule": "Contribution & Financial Reconciliation"
-      },
-      {
-        "name": "InvestmentRecord",
-        "purpose": "Maintains member investment holdings and allocations within scheme-supported funds.",
-        "keyAttributes": [
-          "investment_id (PK, UUID)",
-          "member_id (FK)",
-          "scheme_id (FK)",
-          "investment_product",
-          "amount",
-          "status",
-          "effective_date",
-          "updated_at"
-        ],
-        "owningModule": "Investment Governance"
-      },
-      {
-        "name": "BenefitRequest",
-        "purpose": "Captures member benefit drawdown applications and processing statuses.",
-        "keyAttributes": [
-          "benefit_request_id (PK, UUID)",
-          "member_id (FK)",
-          "benefit_type",
-          "requested_amount",
-          "status",
-          "submitted_date",
-          "approved_at"
-        ],
-        "owningModule": "Benefit Adjudication & Approval"
-      },
-      {
-        "name": "BenefitApproval",
-        "purpose": "Logs governance approval decisions and notes from independent approvers.",
-        "keyAttributes": [
-          "approval_id (PK, UUID)",
-          "benefit_request_id (FK)",
-          "approver_id",
-          "decision",
-          "decision_date",
-          "notes"
-        ],
-        "owningModule": "Benefit Adjudication & Approval"
-      },
-      {
-        "name": "AuditTrail",
-        "purpose": "Immutable chronicle of all material actions, state changes, and actor identities.",
-        "keyAttributes": [
-          "audit_id (PK, UUID)",
-          "entity_type",
-          "entity_id",
-          "action_type",
-          "actor_id",
-          "old_value (JSONB)",
-          "new_value (JSONB)",
-          "changed_at"
-        ],
-        "owningModule": "Audit & Compliance Service"
-      }
-    ],
-    "relationships": [
-      "Scheme (1) to (N) EligibilityRule",
-      "Employer (1) to (N) EmployerSchemeAssociation",
-      "Scheme (1) to (N) EmployerSchemeAssociation",
-      "Member (1) to (N) Enrollment",
-      "Scheme (1) to (N) Enrollment",
-      "Member (1) to (N) PensionAccount",
-      "Scheme (1) to (N) PensionAccount",
-      "Employer (1) to (N) ContributionSubmission",
-      "Scheme (1) to (N) ContributionSubmission",
-      "ContributionSubmission (1) to (N) ContributionReceipt",
-      "Member (1) to (N) ContributionAllocation",
-      "Employer (1) to (N) ContributionAllocation",
-      "Scheme (1) to (N) ContributionAllocation",
-      "ContributionSubmission (1) to (N) ContributionAllocation",
-      "Scheme (1) to (N) ReconciliationRecord",
-      "Member (1) to (N) InvestmentRecord",
-      "Scheme (1) to (N) InvestmentRecord",
-      "Member (1) to (N) BenefitRequest",
-      "BenefitRequest (1) to (N) BenefitApproval"
-    ],
-    "transactions": [
-      "Enrollment & Account Creation: Encompasses Member status check, Enrollment insertion, and PensionAccount provisioning within a single atomic commit.",
-      "Contribution Allocation: Batch INSERT into ContributionAllocation wrapped with a verification check ensuring sum(allocations) <= ContributionReceipt.amount.",
-      "Benefit Decision: Atomic execution updating BenefitRequest status and inserting BenefitApproval and AuditTrail entries."
-    ],
-    "integrityConstraints": [
-      "Unique constraint on Scheme.scheme_number",
-      "Unique constraint on Employer.employer_number",
-      "Unique constraint on Member.national_insurance_number",
-      "Unique constraint on PensionAccount.account_number",
-      "Composite unique constraint on EmployerSchemeAssociation (employer_id, scheme_id, effective_date)",
-      "Foreign key constraints on all child entity links with ON DELETE RESTRICT to avoid accidental data loss",
-      "Check constraints ensuring all monetary amounts (amount, requested_amount) are >= 0"
-    ],
-    "indexes": [
-      "CREATE UNIQUE INDEX idx_member_nin ON Member(national_insurance_number)",
-      "CREATE INDEX idx_enrollment_member_scheme ON Enrollment(member_id, scheme_id)",
-      "CREATE INDEX idx_pension_account_member ON PensionAccount(member_id)",
-      "CREATE INDEX idx_contrib_sub_employer_scheme ON ContributionSubmission(employer_id, scheme_id)",
-      "CREATE INDEX idx_contrib_alloc_submission ON ContributionAllocation(submission_id)",
-      "CREATE INDEX idx_reconciliation_scheme_period ON ReconciliationRecord(scheme_id, period_start, period_end)",
-      "CREATE INDEX idx_benefit_req_member ON BenefitRequest(member_id)",
-      "CREATE INDEX idx_audit_entity ON AuditTrail(entity_type, entity_id, changed_at)"
-    ]
-  },
-  "security": {
-    "authentication": "OpenID Connect (OIDC) / OAuth2 with JSON Web Tokens (JWT) signed using RS256. Every API call validates token signature, expiration, and issuer against an enterprise identity provider.",
-    "authorization": "Role-Based Access Control (RBAC) augmented with Attribute-Based Access Control (ABAC) for data boundaries. Enforces explicit separation of duties (e.g., Benefit submitters cannot approve claims).",
-    "roles": [
-      "PENSION_ADMIN: Manage schemes, rules, employers, and member profiles.",
-      "FINANCE: Manage receipts, allocations, reconciliations, and financial evidence.",
-      "OPERATIONS: Upload submissions, resolve exceptions, initiate benefit claims.",
-      "BENEFIT_APPROVER: Independent authority to approve or reject benefit claims.",
-      "MEMBER: View personal account details, request benefits, initiate self-enrollment.",
-      "COMPLIANCE: Read-only access to audit trails, discrepancy reports, and operational logs."
-    ],
-    "credentialProtection": "Enterprise identity federation via SAML/OIDC; internal service-to-service communication authenticated using mTLS and rotated API credentials stored in a hardware security module or managed secrets store.",
-    "tokenManagement": "Short-lived access tokens (15-minute lifespan) paired with cryptographically secure, rotating refresh tokens revoked immediately upon session invalidation.",
-    "apiSecurity": [
-      "OWASP Top 10 mitigation via API Gateway filters",
-      "Strict JSON payload schema validation before routing",
-      "Rate limiting per IP and client API key",
-      "Mutual TLS (mTLS) for inter-service communication"
-    ],
-    "dataProtection": [
-      "Encryption at rest using AES-256 for all persistent storage volumes and database tablespaces",
-      "Column-level encryption for sensitive PII (e.g., national_insurance_number)",
-      "TLS 1.3 enforced for all data in transit",
-      "Immutable append-only tables for AuditTrail records preventing modification or deletion"
-    ]
-  },
-  "errorHandling": [
-    {
-      "failure": "Duplicate or Inconsistent Member Registration",
-      "detection": "Database unique constraint violation on national_insurance_number or duplicate demographic matching heuristic.",
-      "response": "HTTP 409 Conflict returned with structured payload indicating identity quarantine status.",
-      "recovery": "Member record is persisted in 'QUARANTINED' status with reason code; alert dispatched for administrative review without blocking unrelated registrations."
-    },
-    {
-      "failure": "Reconciliation Discrepancy (Unbalanced Ledger)",
-      "detection": "Reconciliation calculation detects submitted_amount != received_amount or received_amount != allocated_amount.",
-      "response": "Reconciliation calculation sets status to 'DISCREPANCY_FLAGGED' and returns HTTP 200 with variance breakdown.",
-      "recovery": "System flags variance, generates an operational exception entry, and notifies Finance for manual adjustment without silently discarding imbalances."
-    },
-    {
-      "failure": "Benefit Dual-Authorization Violation",
-      "detection": "Approver actor_id matches the submitter actor_id during benefit approval evaluation.",
-      "response": "HTTP 403 Forbidden with error code 'SEGREGATION_OF_DUTIES_VIOLATION'.",
-      "recovery": "Approval transaction is rejected and rolled back; security audit event is logged."
-    },
-    {
-      "failure": "Ineligible Member Enrollment Attempt",
-      "detection": "Eligibility evaluation fails dynamic rule assertions (e.g., age or employment status).",
-      "response": "HTTP 400 Bad Request with detailed evaluation results indicating failed rule clauses.",
-      "recovery": "Enrollment record marked 'REJECTED'; member is notified of ineligibility reason; no account is provisioned."
-    },
-    {
-      "failure": "Database Transaction Concurrency Conflict",
-      "detection": "Optimistic locking exception or database deadlock during allocation write batch.",
-      "response": "HTTP 409 Conflict or 503 Service Unavailable with Retry-After header.",
-      "recovery": "Engine employs exponential backoff retry up to 3 times before failing the batch and rolling back allocation state."
-    }
-  ],
-  "nonFunctionalArchitecture": {
-    "performance": [
-      "P95 API response time under 200ms for online interactive queries",
-      "Batch contribution allocation engine capable of processing 10,000 member lines per minute",
-      "Read replicas and indexed search paths utilized for reconciliation and audit reporting to eliminate OLTP contention"
-    ],
-    "scalability": [
-      "Stateless application server design allowing horizontal auto-scaling based on CPU and memory thresholds",
-      "Database read-write splitting with dedicated read replicas for compliance and operational queries",
-      "Asynchronous background workers handling heavy batch reconciliations without blocking user requests"
-    ],
-    "availability": [
-      "Multi-Availability Zone (Multi-AZ) deployment targeting 99.95% operational uptime",
-      "Automated health checks and self-healing containerized application runtimes",
-      "Database automated multi-AZ failover with near-zero recovery point objective (RPO < 1 min)"
-    ],
-    "reliability": [
-      "ACID transactions for all financial movements ensuring zero balance leakage",
-      "Idempotency keys enforced on all financial submission and payment endpoints",
-      "Daily automated database backups with point-in-time recovery (PITR) retained for 30 days"
-    ],
-    "maintainability": [
-      "Clear domain boundaries implemented as isolated Java/Kotlin or .NET packages within a modular monolith",
-      "Comprehensive Open API 3.0 (Swagger) specifications generated for all REST interfaces",
-      "Automated CI/CD pipelines enforcing static code analysis, security scanning, and unit test coverage >= 85%"
-    ],
-    "observability": [
-      "Structured JSON logging enriched with correlation IDs across all layer boundaries",
-      "Prometheus-compatible metrics tracking transaction rates, allocation latencies, and discrepancy counts",
-      "OpenTelemetry distributed tracing instrumenting request paths through API Gateway to persistence layer",
-      "Centralized Grafana dashboards for financial reconciliations, exceptions, and system health"
-    ]
-  },
-  "deploymentArchitecture": {
-    "components": [
-      "Web Client / Admin Portal (Single Page Application hosted via CDN / Static Web Tier)",
-      "API Gateway / Reverse Proxy (Ingress routing, SSL termination, and rate limiting)",
-      "Application Server Cluster (Containerized EPAS modular monolith running in active-active configuration)",
-      "Primary Relational Database (Managed PostgreSQL in Multi-AZ configuration)",
-      "Database Read Replica (Dedicated to Reporting and Audit query load)",
-      "Centralized Observability Stack (Metrics aggregator, distributed tracing collector, and log indexer)"
-    ],
-    "environments": [
-      "Development (Sandbox environment for continuous integration and unit testing)",
-      "UAT / Staging (Production-mirror environment for end-user acceptance and reconciliation stress testing)",
-      "Production (Hardened multi-AZ deployment with strict zero-trust network segregation)"
-    ],
-    "communication": [
-      "HTTPS / TLS 1.3 between Client and API Gateway",
-      "Secure internal Virtual Private Cloud (VPC) communication between Gateway and Application Servers",
-      "Encrypted TCP connections over TLS for application-to-database communication with connection pooling"
-    ]
-  },
-  "traceability": [
-    {
-      "jiraEpic": "Scheme Administration",
-      "jiraStory": "SCRUM-32",
-      "module": "Scheme Configuration & Rule Administration",
-      "api": "POST /api/v1/schemes",
-      "erdEntities": [
-        "Scheme"
-      ]
-    },
-    {
-      "jiraEpic": "Scheme Administration",
-      "jiraStory": "SCRUM-33",
-      "module": "Scheme Configuration & Rule Administration",
-      "api": "POST /api/v1/schemes/{scheme_id}/rules",
-      "erdEntities": [
-        "EligibilityRule",
-        "Scheme"
-      ]
-    },
-    {
-      "jiraEpic": "Scheme Administration",
-      "jiraStory": "SCRUM-34",
-      "module": "Scheme Configuration & Rule Administration",
-      "api": "GET /api/v1/audit/trail",
-      "erdEntities": [
-        "AuditTrail",
         "Scheme",
         "EligibilityRule"
       ]
     },
     {
-      "jiraEpic": "Employer Management",
-      "jiraStory": "SCRUM-36",
-      "module": "Employer Management & Scheme Association",
-      "api": "POST /api/v1/employers",
-      "erdEntities": [
-        "Employer"
-      ]
-    },
-    {
-      "jiraEpic": "Employer Management",
-      "jiraStory": "SCRUM-37",
-      "module": "Employer Management & Scheme Association",
-      "api": "POST /api/v1/employers (update contact details)",
-      "erdEntities": [
-        "Employer"
-      ]
-    },
-    {
-      "jiraEpic": "Employer Management",
-      "jiraStory": "SCRUM-38",
-      "module": "Employer Management & Scheme Association",
-      "api": "POST /api/v1/employers/{employer_id}/schemes",
-      "erdEntities": [
-        "EmployerSchemeAssociation",
-        "Employer",
-        "Scheme"
-      ]
-    },
-    {
-      "jiraEpic": "Member Management",
-      "jiraStory": "SCRUM-40",
-      "module": "Member Registration & Enrollment Management",
-      "api": "POST /api/v1/members",
+      "name": "Member Enrollment",
+      "purpose": "Manage member enrollments.",
+      "jiraEpics": [
+        "SCRUM-40",
+        "SCRUM-41"
+      ],
+      "jiraStories": [
+        "SCRUM-40-1",
+        "SCRUM-40-2",
+        "SCRUM-41-1",
+        "SCRUM-41-2"
+      ],
+      "responsibilities": [
+        "Member Enrollment",
+        "Eligibility Validation"
+      ],
       "erdEntities": [
         "Member",
         "Enrollment"
       ]
     },
     {
-      "jiraEpic": "Member Management",
-      "jiraStory": "SCRUM-41",
-      "module": "Member Registration & Enrollment Management",
-      "api": "POST /api/v1/enrollments",
+      "name": "Benefit Processing",
+      "purpose": "Process benefit requests.",
+      "jiraEpics": [
+        "SCRUM-59",
+        "SCRUM-60"
+      ],
+      "jiraStories": [
+        "SCRUM-59-1",
+        "SCRUM-59-2",
+        "SCRUM-60-1",
+        "SCRUM-60-2"
+      ],
+      "responsibilities": [
+        "Benefit Processing",
+        "Benefit Approval"
+      ],
       "erdEntities": [
-        "Enrollment",
-        "EligibilityRule"
-      ]
-    },
-    {
-      "jiraEpic": "Member Management",
-      "jiraStory": "SCRUM-42",
-      "module": "Member Registration & Enrollment Management",
-      "api": "POST /api/v1/members (update)",
-      "erdEntities": [
-        "Member",
-        "AuditTrail"
-      ]
-    },
-    {
-      "jiraEpic": "Member Management",
-      "jiraStory": "SCRUM-43",
-      "module": "Member Registration & Enrollment Management",
-      "api": "POST /api/v1/members (quarantine check)",
-      "erdEntities": [
-        "Member"
-      ]
-    },
-    {
-      "jiraEpic": "Account Management",
-      "jiraStory": "SCRUM-45",
-      "module": "Pension Account Administration",
-      "api": "POST /api/v1/accounts",
-      "erdEntities": [
-        "PensionAccount",
-        "Member",
-        "Scheme"
-      ]
-    },
-    {
-      "jiraEpic": "Account Management",
-      "jiraStory": "SCRUM-46",
-      "module": "Pension Account Administration",
-      "api": "GET /api/v1/audit/trail (account traceability)",
-      "erdEntities": [
-        "PensionAccount",
-        "AuditTrail"
-      ]
-    },
-    {
-      "jiraEpic": "Financial Operations",
-      "jiraStory": "SCRUM-48",
-      "module": "Contribution & Financial Reconciliation",
-      "api": "POST /api/v1/contributions/submissions",
-      "erdEntities": [
-        "ContributionSubmission",
-        "Employer",
-        "Scheme"
-      ]
-    },
-    {
-      "jiraEpic": "Financial Operations",
-      "jiraStory": "SCRUM-49",
-      "module": "Contribution & Financial Reconciliation",
-      "api": "POST /api/v1/contributions/receipts",
-      "erdEntities": [
-        "ContributionReceipt",
-        "ContributionSubmission"
-      ]
-    },
-    {
-      "jiraEpic": "Financial Operations",
-      "jiraStory": "SCRUM-50",
-      "module": "Contribution & Financial Reconciliation",
-      "api": "POST /api/v1/contributions/allocations",
-      "erdEntities": [
-        "ContributionAllocation",
-        "PensionAccount",
-        "Member"
-      ]
-    },
-    {
-      "jiraEpic": "Financial Operations",
-      "jiraStory": "SCRUM-51",
-      "module": "Contribution & Financial Reconciliation",
-      "api": "POST /api/v1/reconciliations",
-      "erdEntities": [
-        "ReconciliationRecord",
-        "Scheme"
-      ]
-    },
-    {
-      "jiraEpic": "Financial Operations",
-      "jiraStory": "SCRUM-52",
-      "module": "Contribution & Financial Reconciliation",
-      "api": "GET /api/v1/reports/discrepancies",
-      "erdEntities": [
-        "ReconciliationRecord"
-      ]
-    },
-    {
-      "jiraEpic": "Financial Operations",
-      "jiraStory": "SCRUM-53",
-      "module": "Contribution & Financial Reconciliation",
-      "api": "GET /api/v1/audit/trail",
-      "erdEntities": [
-        "AuditTrail",
-        "ContributionSubmission",
-        "ContributionReceipt",
-        "ContributionAllocation"
-      ]
-    },
-    {
-      "jiraEpic": "Investment Administration",
-      "jiraStory": "SCRUM-55",
-      "module": "Investment Governance",
-      "api": "POST /api/v1/investments",
-      "erdEntities": [
-        "InvestmentRecord",
-        "Member",
-        "Scheme"
-      ]
-    },
-    {
-      "jiraEpic": "Investment Administration",
-      "jiraStory": "SCRUM-56",
-      "module": "Investment Governance",
-      "api": "GET /api/v1/audit/trail (investment traceability)",
-      "erdEntities": [
-        "InvestmentRecord",
-        "AuditTrail"
-      ]
-    },
-    {
-      "jiraEpic": "Benefits Administration",
-      "jiraStory": "SCRUM-58",
-      "module": "Benefit Adjudication & Approval",
-      "api": "POST /api/v1/benefits/requests",
-      "erdEntities": [
-        "BenefitRequest",
-        "Member"
-      ]
-    },
-    {
-      "jiraEpic": "Benefits Administration",
-      "jiraStory": "SCRUM-59",
-      "module": "Benefit Adjudication & Approval",
-      "api": "POST /api/v1/benefits/requests/{request_id}/approvals",
-      "erdEntities": [
-        "BenefitApproval",
-        "BenefitRequest"
-      ]
-    },
-    {
-      "jiraEpic": "Benefits Administration",
-      "jiraStory": "SCRUM-60",
-      "module": "Benefit Adjudication & Approval",
-      "api": "POST /api/v1/benefits/requests (status tracking)",
-      "erdEntities": [
-        "BenefitRequest",
+        "Benefit",
         "BenefitApproval"
       ]
+    }
+  ],
+  "apis": [
+    {
+      "method": "POST",
+      "endpoint": "/scheme/configure",
+      "purpose": "Create a new scheme configuration.",
+      "module": "Scheme Configuration",
+      "request": {
+        "scheme_name": "",
+        "scheme_number": "",
+        "status": "",
+        "effective_date": "",
+        "end_date": ""
+      },
+      "response": {
+        "scheme_id": "",
+        "scheme_name": "",
+        "scheme_number": "",
+        "status": "",
+        "effective_date": "",
+        "end_date": ""
+      },
+      "authentication": "Basic Auth",
+      "authorization": "Role-Based Access Control",
+      "validation": [
+        "Scheme Name",
+        "Scheme Number"
+      ],
+      "errors": [
+        "Invalid Scheme Name",
+        "Invalid Scheme Number"
+      ]
     },
     {
-      "jiraEpic": "Audit & Reporting",
-      "jiraStory": "SCRUM-62",
-      "module": "Operational & Compliance Reporting",
-      "api": "GET /api/v1/reports/discrepancies (financial reporting)",
+      "method": "POST",
+      "endpoint": "/member/enroll",
+      "purpose": "Enroll a new member.",
+      "module": "Member Enrollment",
+      "request": {
+        "member_name": "",
+        "member_email": "",
+        "member_phone": ""
+      },
+      "response": {
+        "member_id": "",
+        "member_name": "",
+        "member_email": "",
+        "member_phone": ""
+      },
+      "authentication": "Basic Auth",
+      "authorization": "Role-Based Access Control",
+      "validation": [
+        "Member Name",
+        "Member Email",
+        "Member Phone"
+      ],
+      "errors": [
+        "Invalid Member Name",
+        "Invalid Member Email",
+        "Invalid Member Phone"
+      ]
+    },
+    {
+      "method": "POST",
+      "endpoint": "/benefit/request",
+      "purpose": "Create a new benefit request.",
+      "module": "Benefit Processing",
+      "request": {
+        "benefit_type": "",
+        "requested_amount": "",
+        "status": ""
+      },
+      "response": {
+        "benefit_request_id": "",
+        "benefit_type": "",
+        "requested_amount": "",
+        "status": ""
+      },
+      "authentication": "Basic Auth",
+      "authorization": "Role-Based Access Control",
+      "validation": [
+        "Benefit Type",
+        "Requested Amount"
+      ],
+      "errors": [
+        "Invalid Benefit Type",
+        "Invalid Requested Amount"
+      ]
+    }
+  ],
+  "businessFlows": [
+    {
+      "name": "Scheme Configuration",
+      "actor": "Pension Administrator",
+      "steps": [
+        "Create Scheme Configuration",
+        "Validate Scheme Configuration",
+        "Create Scheme Record"
+      ],
+      "components": [
+        "Scheme Configuration",
+        "Validation Layer",
+        "Repository/Data Access Layer"
+      ],
+      "validations": [
+        "Scheme Name",
+        "Scheme Number"
+      ],
+      "databaseOperations": [
+        "Create Scheme Record"
+      ],
+      "result": "Scheme Configuration Created"
+    },
+    {
+      "name": "Member Enrollment",
+      "actor": "Pension Administrator",
+      "steps": [
+        "Enroll Member",
+        "Validate Member Enrollment",
+        "Create Member Record"
+      ],
+      "components": [
+        "Member Enrollment",
+        "Validation Layer",
+        "Repository/Data Access Layer"
+      ],
+      "validations": [
+        "Member Name",
+        "Member Email",
+        "Member Phone"
+      ],
+      "databaseOperations": [
+        "Create Member Record"
+      ],
+      "result": "Member Enrolled"
+    },
+    {
+      "name": "Benefit Processing",
+      "actor": "Pension Administrator",
+      "steps": [
+        "Create Benefit Request",
+        "Validate Benefit Request",
+        "Process Benefit Request"
+      ],
+      "components": [
+        "Benefit Processing",
+        "Validation Layer",
+        "Repository/Data Access Layer"
+      ],
+      "validations": [
+        "Benefit Type",
+        "Requested Amount"
+      ],
+      "databaseOperations": [
+        "Process Benefit Request"
+      ],
+      "result": "Benefit Request Processed"
+    }
+  ],
+  "dataFlows": [
+    {
+      "name": "Scheme Configuration",
+      "steps": [
+        "Create Scheme Configuration",
+        "Validate Scheme Configuration",
+        "Create Scheme Record"
+      ],
+      "dataEntities": [
+        "Scheme"
+      ],
+      "consistency": "Strong Consistency"
+    },
+    {
+      "name": "Member Enrollment",
+      "steps": [
+        "Enroll Member",
+        "Validate Member Enrollment",
+        "Create Member Record"
+      ],
+      "dataEntities": [
+        "Member"
+      ],
+      "consistency": "Strong Consistency"
+    },
+    {
+      "name": "Benefit Processing",
+      "steps": [
+        "Create Benefit Request",
+        "Validate Benefit Request",
+        "Process Benefit Request"
+      ],
+      "dataEntities": [
+        "Benefit"
+      ],
+      "consistency": "Strong Consistency"
+    }
+  ],
+  "databaseDesign": {
+    "entities": [
+      {
+        "name": "Scheme",
+        "purpose": "Store scheme configurations.",
+        "keyAttributes": [
+          "scheme_id"
+        ],
+        "owningModule": "Scheme Configuration"
+      },
+      {
+        "name": "Member",
+        "purpose": "Store member enrollments.",
+        "keyAttributes": [
+          "member_id"
+        ],
+        "owningModule": "Member Enrollment"
+      },
+      {
+        "name": "Benefit",
+        "purpose": "Store benefit requests.",
+        "keyAttributes": [
+          "benefit_request_id"
+        ],
+        "owningModule": "Benefit Processing"
+      }
+    ],
+    "relationships": [
+      {
+        "from": "Scheme",
+        "to": "Benefit",
+        "type": "one-to-many"
+      },
+      {
+        "from": "Member",
+        "to": "Benefit",
+        "type": "one-to-many"
+      }
+    ],
+    "transactions": [
+      {
+        "name": "Scheme Configuration",
+        "description": "Create scheme configuration and create scheme record."
+      },
+      {
+        "name": "Member Enrollment",
+        "description": "Enroll member and create member record."
+      },
+      {
+        "name": "Benefit Processing",
+        "description": "Create benefit request and process benefit request."
+      }
+    ],
+    "integrityConstraints": [
+      {
+        "name": "FK_Scheme_Benefit",
+        "description": "Foreign key constraint on scheme_id referencing benefit_request_id."
+      },
+      {
+        "name": "FK_Member_Benefit",
+        "description": "Foreign key constraint on member_id referencing benefit_request_id."
+      }
+    ],
+    "indexes": [
+      {
+        "name": "IX_Scheme_SchemeId",
+        "description": "Index on scheme_id."
+      },
+      {
+        "name": "IX_Member_MemberId",
+        "description": "Index on member_id."
+      },
+      {
+        "name": "IX_Benefit_BenefitRequestId",
+        "description": "Index on benefit_request_id."
+      }
+    ]
+  },
+  "security": {
+    "authentication": "Basic Auth",
+    "authorization": "Role-Based Access Control",
+    "roles": [
+      {
+        "name": "Admin",
+        "description": "Admin role."
+      },
+      {
+        "name": "User",
+        "description": "User role."
+      }
+    ],
+    "credentialProtection": "Password Hashing",
+    "tokenManagement": "Token-Based Authentication",
+    "apiSecurity": [
+      {
+        "name": "API Gateway",
+        "description": "API Gateway security."
+      }
+    ],
+    "dataProtection": [
+      {
+        "name": "Data Encryption",
+        "description": "Data encryption."
+      }
+    ]
+  },
+  "errorHandling": [
+    {
+      "failure": "Invalid Scheme Name",
+      "detection": "Validation Layer",
+      "response": "400 Bad Request",
+      "recovery": "Retry Request"
+    },
+    {
+      "failure": "Invalid Member Name",
+      "detection": "Validation Layer",
+      "response": "400 Bad Request",
+      "recovery": "Retry Request"
+    },
+    {
+      "failure": "Invalid Benefit Type",
+      "detection": "Validation Layer",
+      "response": "400 Bad Request",
+      "recovery": "Retry Request"
+    }
+  ],
+  "nonFunctionalArchitecture": {
+    "performance": [
+      {
+        "name": "Database Indexing",
+        "description": "Database indexing to improve query performance."
+      }
+    ],
+    "scalability": [
+      {
+        "name": "Load Balancing",
+        "description": "Load balancing to distribute traffic across multiple instances."
+      }
+    ],
+    "availability": [
+      {
+        "name": "Database Replication",
+        "description": "Database replication to ensure data availability."
+      }
+    ],
+    "reliability": [
+      {
+        "name": "Transaction Isolation",
+        "description": "Transaction isolation to ensure data consistency."
+      }
+    ],
+    "maintainability": [
+      {
+        "name": "Modular Design",
+        "description": "Modular design to improve maintainability."
+      }
+    ],
+    "observability": [
+      {
+        "name": "Logging and Monitoring",
+        "description": "Logging and monitoring to improve observability."
+      }
+    ]
+  },
+  "deploymentArchitecture": {
+    "components": [
+      {
+        "name": "Web Server",
+        "description": "Web server to handle HTTP requests."
+      },
+      {
+        "name": "Database Server",
+        "description": "Database server to store and retrieve data."
+      },
+      {
+        "name": "Cache Server",
+        "description": "Cache server to improve performance."
+      }
+    ],
+    "environments": [
+      {
+        "name": "Development",
+        "description": "Development environment."
+      },
+      {
+        "name": "Production",
+        "description": "Production environment."
+      }
+    ],
+    "communication": [
+      {
+        "name": "API Gateway",
+        "description": "API gateway to handle API requests."
+      }
+    ]
+  },
+  "traceability": [
+    {
+      "jiraEpic": "SCRUM-32",
+      "jiraStory": "SCRUM-32-1",
+      "module": "Scheme Configuration",
+      "api": "POST /scheme/configure",
       "erdEntities": [
-        "ReconciliationRecord",
         "Scheme"
       ]
     },
     {
-      "jiraEpic": "Audit & Reporting",
-      "jiraStory": "SCRUM-63",
-      "module": "Operational & Compliance Reporting",
-      "api": "GET /api/v1/reports/discrepancies (status visibility)",
+      "jiraEpic": "SCRUM-40",
+      "jiraStory": "SCRUM-40-1",
+      "module": "Member Enrollment",
+      "api": "POST /member/enroll",
       "erdEntities": [
-        "Enrollment",
-        "BenefitRequest",
-        "ContributionSubmission"
-      ]
-    },
-    {
-      "jiraEpic": "Audit & Reporting",
-      "jiraStory": "SCRUM-64",
-      "module": "Operational & Compliance Reporting",
-      "api": "GET /api/v1/reports/discrepancies",
-      "erdEntities": [
-        "ReconciliationRecord"
-      ]
-    },
-    {
-      "jiraEpic": "Audit & Reporting",
-      "jiraStory": "SCRUM-65",
-      "module": "Operational & Compliance Reporting",
-      "api": "GET /api/v1/reports/discrepancies (exception visibility)",
-      "erdEntities": [
-        "ReconciliationRecord",
         "Member"
       ]
     },
     {
-      "jiraEpic": "Audit & Reporting",
-      "jiraStory": "SCRUM-66",
-      "module": "Operational & Compliance Reporting",
-      "api": "GET /api/v1/audit/trail",
+      "jiraEpic": "SCRUM-59",
+      "jiraStory": "SCRUM-59-1",
+      "module": "Benefit Processing",
+      "api": "POST /benefit/request",
       "erdEntities": [
-        "AuditTrail"
-      ]
-    },
-    {
-      "jiraEpic": "Audit & Reporting",
-      "jiraStory": "SCRUM-67",
-      "module": "Operational & Compliance Reporting",
-      "api": "GET /api/v1/audit/trail (audit procedures review)",
-      "erdEntities": [
-        "AuditTrail"
+        "Benefit"
       ]
     }
   ],
   "architecturalDecisions": [
     {
-      "decision": "Adopt a Modular Monolith architecture rather than distributed Microservices.",
-      "rationale": "Pension calculations and ledger reconciliation require strong ACID guarantees across schemes, allocations, and accounts. Distributed transactions would introduce unwarranted latency, partial failure complexity, and eventual consistency risks.",
-      "consequence": "All modules share a single transactional relational database while enforcing compile-time packaging barriers to maintain clean boundaries."
+      "decision": "Use a layered architecture",
+      "rationale": "To provide a clear separation of concerns and improve maintainability.",
+      "consequence": "Improved maintainability and scalability."
     },
     {
-      "decision": "Implement Quarantine Pattern on Member Registration duplicates rather than outright silent drops or hard exceptions.",
-      "rationale": "SCRUM-43 requires duplicate and invalid registrations to be flagged and retained for manual administrative resolution. Quarantining preserves registration context and enables compliance investigation.",
-      "consequence": "The Member entity must support nullable quarantine reason states and gate subsequent enrollment checks on a non-quarantined status."
+      "decision": "Use REST APIs",
+      "rationale": "To provide a simple and widely adopted API standard.",
+      "consequence": "Improved scalability and maintainability."
     },
     {
-      "decision": "Enforce strict Segregation of Duties (Dual-Control) in the Benefit Approval engine.",
-      "rationale": "Pension drawdown operations present high fiduciary and fraud risk; the submitter of a claim must never be allowed to approve their own request.",
-      "consequence": "The Benefit Approval API validates and rejects transactions where the authenticated actor equals the requester, necessitating separate operator and approver identities."
-    },
-    {
-      "decision": "Implement an append-only AuditTrail entity utilizing JSONB payload diffing.",
-      "rationale": "Regulatory compliance across scheme modifications, investment switches, and financial transactions mandates tamper-evident change histories.",
-      "consequence": "Slight increase in database storage requirements, offset by rich point-in-time reconstructability for regulatory audits."
+      "decision": "Use Basic Auth for authentication",
+      "rationale": "To provide a simple and widely adopted authentication standard.",
+      "consequence": "Improved scalability and maintainability."
     }
   ],
   "implementationSequence": [
-    "Phase 1: Foundation & Persistence - Provision relational database schema (DDL, primary keys, foreign keys, unique constraints, and indexes) adhering strictly to the ERD.",
-    "Phase 2: Security & Cross-Cutting Infrastructure - Configure OAuth2/OIDC JWT authentication filter, RBAC authorization handlers, and the immutable AuditTrail persistence service.",
-    "Phase 3: Master Data Modules - Build Scheme Configuration, Eligibility Rules, and Employer Management modules with REST endpoints and audit listeners.",
-    "Phase 4: Member & Account Core - Implement Member registration with duplicate/quarantine checks, dynamic eligibility validation engine, and Pension Account creation.",
-    "Phase 5: Financial Contribution Pipeline - Implement Contribution Submission recording, Receipt matching, and atomic batch Member Allocation engine.",
-    "Phase 6: Financial Reconciliation Engine - Build three-way reconciliation logic, discrepancy detection mechanisms, and exception tracking workflows.",
-    "Phase 7: Investments & Benefits Workflow - Develop Investment product management and Benefit claim state machine with dual-control approval enforcement.",
-    "Phase 8: Reporting, Compliance & Observability - Implement operational status dashboards, reconciliation discrepancy reporting, OpenTelemetry tracing, and metric alerts.",
-    "Phase 9: End-to-End Testing & Production Deployment - Execute automated integration tests, penetration testing, reconciliation stress tests, and rollout to high-availability multi-AZ infrastructure."
+    {
+      "name": "Database Schema",
+      "description": "Create database schema."
+    },
+    {
+      "name": "Authentication and Authorization",
+      "description": "Implement authentication and authorization."
+    },
+    {
+      "name": "Core Domain Modules",
+      "description": "Implement core domain modules."
+    },
+    {
+      "name": "Repository/Data Access Layer",
+      "description": "Implement repository/data access layer."
+    },
+    {
+      "name": "REST APIs",
+      "description": "Implement REST APIs."
+    },
+    {
+      "name": "Business Workflows",
+      "description": "Implement business workflows."
+    },
+    {
+      "name": "External Integrations",
+      "description": "Implement external integrations."
+    },
+    {
+      "name": "Error Handling",
+      "description": "Implement error handling."
+    },
+    {
+      "name": "Observability",
+      "description": "Implement observability."
+    }
   ]
 }
